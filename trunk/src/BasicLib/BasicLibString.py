@@ -26,8 +26,12 @@ def RemoveWord(string, index):
     string = str(string).strip()
     while string.replace("  "," ") != string:
         string = string.replace("  "," ")
-    tmp = string.split(' ')    
-    for i in tmp:
+    tmp = string.split(' ') 
+    str1 = "";   
+    for i in range(len(tmp)):
+        if i != index :
+            str1 += tmp[i] + " "
+    return str1.strip()
         
 
-print (ParseWord("   111                 222    33  ", 2))
+#print (RemoveWord("   111                 222    33  ", 0))

@@ -64,9 +64,11 @@ class Timer:
             string += str(h) + " hours, "
         string += str(m) + " minutes"
         return string
-    
+
+'''    
 t = Timer()
 print(t.GetString())
 print(TimeStamp())
 print(DateStamp())
+'''
         
