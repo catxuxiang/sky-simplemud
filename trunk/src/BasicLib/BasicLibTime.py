@@ -69,5 +69,4 @@ t = Timer()
 print(t.GetString())
 print(TimeStamp())
 print(DateStamp())
-print(1111)
         
