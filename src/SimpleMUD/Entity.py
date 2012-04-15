@@ -31,7 +31,7 @@ class Entity:
         else:
             return False
         
-    def ID(self):
+    def Id(self):
         return self.m_id
 
 '''    
