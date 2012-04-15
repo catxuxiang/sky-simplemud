@@ -22,6 +22,12 @@ def ParseWord(string, index):
     tmp = string.split(' ')
     return tmp[index].strip()
 
+def ParseName(name):
+    tmp = list(name)
+    del tmp[0]
+    del tmp[len(tmp) - 1]
+    return "".join(tmp)    
+
 def RemoveWord(string, index):
     string = str(string).strip()
     while string.replace("  "," ") != string:
