@@ -6,89 +6,91 @@ Created on 2012-4-14
 from Entity import Entity
 
 class EntityDatabase:
-    container = {}
-    index = 0
+    
+    def __init__(self):
+        self.container = {}
         
-    @staticmethod    
-    def SetValue(p_id, value):
-        EntityDatabase.container[p_id] = value
+    def SetValue(self, p_id, value):
+        self.container[p_id] = value
         
-    @staticmethod    
-    def GetValue(p_id):
-        for i in EntityDatabase.container.keys():
+    def GetValue(self, p_id):
+        for i in self.container.keys():
             if i == p_id:
-                return EntityDatabase.container[i]
+                return self.container[i]
         return None
     
-    @staticmethod
-    def FindFull(p_name):
-        for i in EntityDatabase.container.values():
+    def FindFull(self, p_name):
+        for i in self.container.values():
             if i.CompName() == p_name.strip().lower():
                 return i
         return None
     
-    @staticmethod
-    def Find(p_name):
-        for i in EntityDatabase.container.values():
+    def Find(self, p_name):
+        for i in self.container.values():
             if i.CompName().find(p_name.strip().lower(), 0) == 0:
                 return i
         return None
     
-    @staticmethod
-    def HasId(p_id):
-        if EntityDatabase.GetValue(p_id) == None:
+    def HasId(self, p_id):
+        if self.GetValue(p_id) == None:
             return False
         else:
             return True
     
-    @staticmethod        
-    def HasFull(p_name):
-        if EntityDatabase.FindFull(p_name) == None:
+    def HasFull(self, p_name):
+        if self.FindFull(p_name) == None:
             return False
         else:
             return True
     
-    @staticmethod      
-    def Has(p_name):
-        if EntityDatabase.Has(p_name) == None:
+    def Has(self, p_name):
+        if self.Has(p_name) == None:
             return False
         else:
             return True
         
-    @staticmethod     
-    def Size():
-        return len(EntityDatabase.container)
+    def Size(self):
+        return len(self.container)
     
-    @staticmethod 
-    def FindOpenId():
-        return len(EntityDatabase.container)
+    def FindOpenId(self):
+        return len(self.container)
     
-    @staticmethod
-    def __iter__():
-        EntityDatabase.index = 0
-        return EntityDatabase.container
+    def __iter__(self):
+        for i in self.container:
+            yield self.container[i]
+            
+class EntityDatabaseVector:
+    def __init__(self):
+        self.container = []
+        
+    def __iter__(self):
+        for i in self.container:
+            yield i
+            
+    def Size(self):
+        return len(self.container)
     
-    @staticmethod
-    def next():
-        if EntityDatabase.index < len(EntityDatabase.container):
-            obj = list(EntityDatabase.container.values())[EntityDatabase.index]
-            EntityDatabase.index += 1
-            return obj
-        else:
-            raise StopIteration 
-
-
-    
-#class EntityDatabaseVector:
-    
-
+    def SetValue(self, value):
+        self.container[i].append(value)
+   
+    def GetValue(self, p_id):
+        for i in self.container:
+            if i.Id() == p_id:
+                return i
+        return None
+            
+        
+        
+        
+'''    
+i = EntityDatabase()
 j = Entity()
-EntityDatabase.SetValue("111", j)
+i.SetValue("111", j)
 k = Entity()
-EntityDatabase.SetValue("222", k)
-for i in EntityDatabase:
-    print(i)
-print(EntityDatabase.Size())
+i.SetValue("222", k)
+for item in i:
+    print(item.Name())
+print(i.Size())
 
 k = ["111", "222"]
 print(k[0])
@@ -97,6 +99,7 @@ print(k)
 del k[0]
 print(k)
 print(k[0])
+'''
 
 
 
