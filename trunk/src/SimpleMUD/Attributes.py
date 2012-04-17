@@ -65,44 +65,125 @@ class AttributeSet:
     def GetValue(self, p_attr):
         return self.m_attributes[p_attr]
 
-    def FromLines(self, lines):
-        for i in lines:
-            name = BasicLibString.ParseName(BasicLibString.ParseWord(i, 0))
-            value = BasicLibString.ParseWord(i, 1)
+    def FromLines(self, file):
+        for i in range(0, NUMATTRIBUTES):
+            line = file.readline()
+            name = BasicLibString.ParseName(BasicLibString.ParseWord(line, 0))
+            value = BasicLibString.ParseWord(line, 1)
             self.m_attributes[int(GetAttribute(name))] = int(value)
             
-    def __repr__(self):
+    def ToLines(self):
         string = ""
-        for i in range(0, len(self.m_attributes)):
-            string += GetAttributeString(i) + ":" + str(self.m_attributes[i]) + "\n"
+        for i in range(0, NUMATTRIBUTES):
+            string += "[" + GetAttributeString(i) + "]\t" + str(self.m_attributes[i]) + "\n"
         return string
             
+    def __repr__(self):
+        return self.ToLines()
+
+'''        
 i = AttributeSet()
 file0 = open("Attribute.templates", "r")
-lines = file0.readlines()  
-i.FromLines(lines)
-print(i)
+i.FromLines(file0)
+print(file0.readline() + "1111")
+print(file0.readline() + "1111")
+#print(i)
 file0.close()
+print(i)
+'''
 
         
-
-
-WEAPON = 0
-ARMOR = 1
-HEALING = 2
+ItemType_WEAPON = 0
+ItemType_ARMOR = 1
+ItemType_HEALING = 2
+NUMITEMTYPES = 3
 
 def GetItemTypeString(index):
-    if index == WEAPON:
+    if index == ItemType_WEAPON:
         return "WEAPON"
-    elif index == ARMOR:
+    elif index == ItemType_ARMOR:
         return "ARMOR"
-    elif index == HEALING:
+    elif index == ItemType_HEALING:
         return "HEALING"
 
 def GetItemType(p_str):
     if p_str == "WEAPON":
-        return WEAPON
+        return ItemType_WEAPON
     elif p_str == "ARMOR":
-        return ARMOR
+        return ItemType_ARMOR
     elif p_str == "HEALING":
-        return HEALING
+        return ItemType_HEALING
+    
+PlayerRank_REGULAR = 0
+PlayerRank_GOD = 1
+PlayerRank_ADMIN = 2
+NUMPLAYERRANKTYPES = 3
+
+def GetRankString(index):
+    if index == PlayerRank_REGULAR:
+        return "REGULAR"
+    elif index == PlayerRank_GOD:
+        return "GOD"
+    elif index == PlayerRank_ADMIN:
+        return "ADMIN"
+
+def GetRank(p_str):
+    if p_str == "REGULAR":
+        return PlayerRank_REGULAR
+    elif p_str == "GOD":
+        return PlayerRank_GOD
+    elif p_str == "ADMIN":
+        return PlayerRank_ADMIN
+    
+RoomType_PLAINROOM = 0
+RoomType_TRAININGROOM = 1
+RoomType_STORE = 2
+NUMROOMTYPES = 3
+
+def GetRoomTypeString(index):
+    if index == RoomType_PLAINROOM:
+        return "PLAINROOM"
+    elif index == RoomType_TRAININGROOM:
+        return "TRAININGROOM"
+    elif index == RoomType_STORE:
+        return "STORE"
+
+def GetRoomType(p_str):
+    if p_str == "PLAINROOM":
+        return RoomType_PLAINROOM
+    elif p_str == "TRAININGROOM":
+        return RoomType_TRAININGROOM
+    elif p_str == "STORE":
+        return RoomType_STORE
+    
+Direction_NORTH = 0
+Direction_EAST = 1
+Direction_SOUTH = 2
+Direction_WEST = 3
+NUMDIRECTIONS = 4
+
+def OppositeDirection(p_dir):
+    return (p_dir + 2) % 4
+
+def GetDirectionString(index):
+    if index == Direction_NORTH:
+        return "NORTH"
+    elif index == Direction_EAST:
+        return "EAST"
+    elif index == Direction_SOUTH:
+        return "SOUTH"
+    elif index == Direction_WEST:
+        return "WEST"
+
+def GetDirection(p_str):
+    if p_str == "NORTH":
+        return Direction_NORTH
+    elif p_str == "EAST":
+        return Direction_EAST
+    elif p_str == "SOUTH":
+        return Direction_SOUTH
+    elif p_str == "WEST":
+        return Direction_WEST
+
+
+
