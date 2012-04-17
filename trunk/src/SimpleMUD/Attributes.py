@@ -72,14 +72,13 @@ class AttributeSet:
             value = BasicLibString.ParseWord(line, 1)
             self.m_attributes[int(GetAttribute(name))] = int(value)
             
-    def ToLines(self):
-        string = ""
+    def ToLines(self, string):
         for i in range(0, NUMATTRIBUTES):
-            string += "[" + GetAttributeString(i) + "]\t" + str(self.m_attributes[i]) + "\n"
+            string += BasicLibString.Fill16Char("[" + GetAttributeString(i) + "]") + str(self.m_attributes[i]) + "\n"
         return string
             
     def __repr__(self):
-        return self.ToLines()
+        return self.ToLines("")
 
 '''        
 i = AttributeSet()
