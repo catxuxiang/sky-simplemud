@@ -36,8 +36,8 @@ class Item(Entity):
     
     def FromLines(self, file):
         line = file.readline()
-        name = BasicLibString.ParseName(BasicLibString.ParseWord(line, 0))
-        self.m_name = line.replace("[" + name + "]", "").strip()
+        name = BasicLibString.RemoveWord(line, 0)
+        self.m_name = name.strip()
         line = file.readline()
         self.m_type = Attributes.GetItemType(BasicLibString.ParseWord(line, 1))
         line = file.readline()
@@ -51,20 +51,20 @@ class Item(Entity):
         self.m_attributes.FromLines(file)
         
     def __repr__(self):
-        string  = "[NAME]\t" + self.m_name + "\n"
-        string += "[TYPE]\t" + Attributes.GetItemTypeString(self.m_type) + "\n"
-        string += "[MIN]\t" + self.m_min + "\n"
-        string += "[MAX]\t" + self.m_max + "\n"
-        string += "[SPEED]\t" + self.m_speed + "\n"
-        string += "[PRICE]\t" + self.m_price + "\n"
+        string  = BasicLibString.Fill16Char("[NAME]") + self.m_name + "\n"
+        string += BasicLibString.Fill16Char("[TYPE]") + Attributes.GetItemTypeString(self.m_type) + "\n"
+        string += BasicLibString.Fill16Char("[MIN]") + self.m_min + "\n"
+        string += BasicLibString.Fill16Char("[MAX]") + self.m_max + "\n"
+        string += BasicLibString.Fill16Char("[SPEED]") + self.m_speed + "\n"
+        string += BasicLibString.Fill16Char("[PRICE]") + self.m_price + "\n"
         return string + str(self.m_attributes)
-    
+ 
 a = Item()
 file = open("example.itm")
 a.FromLines(file)
 file.close()
 print(a)
-           
+       
     
 
     

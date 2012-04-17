@@ -5,6 +5,7 @@ Created on 2012-4-15
 '''
 
 from Entity import Entity
+from BasicLib import BasicLibString
 
 class EnemyTemplate(Entity):
     def __init__(self):
@@ -17,4 +18,128 @@ class EnemyTemplate(Entity):
         self.m_weapon = 0
         self.m_moneymin = 0
         self.m_moneymax = 0
-       
+        
+    def FromLines(self, file):
+        line = file.readline()
+        name = BasicLibString.RemoveWord(line, 0)
+        self.m_name = name.strip()
+        line = file.readline()
+        self.m_hitpoints = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_accuracy = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_dodging = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_strikedamage = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_damageabsorb = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_experience = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_weapon = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_moneymin = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_moneymax = BasicLibString.ParseWord(line, 1)
+        
+        self.m_loot = []
+        line = file.readline()
+        while line.strip() != "[ENDLOOT]":
+            id1 = BasicLibString.ParseWord(line, 1)
+            chance = BasicLibString.ParseWord(line, 2)
+            self.m_loot.append([id1, chance])
+            line = file.readline()
+        return file
+    
+    def ToLines(self, string):
+        string += BasicLibString.Fill16Char("[NAME]") + self.m_name + "\n"
+        string += BasicLibString.Fill16Char("[HITPOINTS]") + self.m_hitpoints + "\n"
+        string += BasicLibString.Fill16Char("[ACCURACY]") + self.m_accuracy + "\n"
+        string += BasicLibString.Fill16Char("[DODGING]") + self.m_dodging + "\n"
+        string += BasicLibString.Fill16Char("[STRIKEDAMAGE]") + self.m_strikedamage + "\n"
+        string += BasicLibString.Fill16Char("[DAMAGEABSORB]") + self.m_damageabsorb + "\n"
+        string += BasicLibString.Fill16Char("[EXPERIENCE]") + self.m_experience + "\n"
+        string += BasicLibString.Fill16Char("[WEAPON]") + self.m_weapon + "\n"
+        string += BasicLibString.Fill16Char("[MONEYMIN]") + self.m_moneymin + "\n"
+        string += BasicLibString.Fill16Char("[MONEYMAX]") + self.m_moneymax + "\n"        
+        for i in self.m_loot:
+            string += BasicLibString.Fill16Char("[LOOT]") + i[0] + "  " + i[1] + "\n" 
+        return string
+    
+    def __repr__(self):
+        return self.ToLines("")
+        
+class Enemy(Entity):   
+    def __init__(self):
+        self.m_template = 0
+        self.m_hitpoints = 0
+        self.m_room = 0
+        self.m_nextattacktime = 0
+
+    def LoadTemplate(self, p_template):
+        self.m_template = p_template
+        self.m_hitpoints = p_template.m_hitpoints
+        
+    def Name(self):
+        return self.m_template.Name()
+    
+    def Accuracy(self):
+        return self.m_template.m_accuracy
+    
+    def Dodging(self):
+        return self.m_template.m_dodging
+    
+    def StrikeDamage(self):
+        return self.m_template.m_strikedamage
+    
+    def DamageAbsorb(self):
+        return self.m_template.m_damageabsorb
+    
+    def Experience(self):
+        return self.m_template.m_experience
+    
+    def Weapon(self):
+        return self.m_template.m_weapon
+    
+    def MoneyMin(self):
+        return self.m_template.m_moneymin
+    
+    def MoneyMax(self):
+        return self.m_template.m_moneymax
+    
+    def LootList(self):
+        return self.m_template.m_loot
+    
+    def FromLines(self, file):
+        line = file.readline()
+        self.m_template = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_hitpoints = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_room = BasicLibString.ParseWord(line, 1)
+        line = file.readline()
+        self.m_nextattacktime = BasicLibString.ParseWord(line, 1)
+        return file
+    
+    def ToLines(self, string):
+        string += BasicLibString.Fill16Char("[TEMPLATEID]") + str(self.m_template.Id()) + "\n"
+        string += BasicLibString.Fill16Char("[HITPOINTS]") + str(self.m_hitpoints) + "\n"
+        string += BasicLibString.Fill16Char("[ROOM]") + str(self.m_room) + "\n"
+        string += BasicLibString.Fill16Char("[NEXTATTACKTIME]") + str(self.m_nextattacktime) + "\n"
+        return string
+    
+    def __repr__(self):
+        return self.ToLines("")
+    
+file = open("enemies.templates")
+i = EnemyTemplate()
+file.readline()
+i.FromLines(file)
+file.close()
+j = Enemy()
+j.LoadTemplate(i)
+print(j)
+  
+        
+   
+    
