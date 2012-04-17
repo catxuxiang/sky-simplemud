@@ -5,3 +5,4 @@ Created on 2012-4-14
 '''
 import BasicLibTime
 print(BasicLibTime.TimeStamp())
+print(111)
