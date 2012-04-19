@@ -9,8 +9,11 @@ class Entity:
         self.m_name = "UNDEFINED"
         self.m_id = 0
         
-    def Name(self):
+    def GetName(self):
         return self.m_name
+    
+    def SetName(self, m_name):
+        self.m_name = m_name
     
     def CompName(self):
         return self.m_name.lower()
