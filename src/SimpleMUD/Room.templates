@@ -1,0 +1,10 @@
+[NAME]          Town Square
+[DESCRIPTION]   You are in the town square. This is the central meeting place for the realm.
+[TYPE]          PLAINROOM
+[DATA]          0
+[NORTH]         2
+[EAST]          25
+[SOUTH]         4
+[WEST]          5
+[ENEMY]         0
+[MAXENEMIES]    0
