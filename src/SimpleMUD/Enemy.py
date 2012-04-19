@@ -9,6 +9,7 @@ from BasicLib import BasicLibString
 
 class EnemyTemplate(Entity):
     def __init__(self):
+        Entity.__init__(self)
         self.m_hitpoints = 0
         self.m_accuracy = 0
         self.m_dodging = 0
@@ -52,6 +53,7 @@ class EnemyTemplate(Entity):
         return file
     
     def ToLines(self, string):
+        string += BasicLibString.Fill16Char("[ID]") + self.m_id + "\n"
         string += BasicLibString.Fill16Char("[NAME]") + self.m_name + "\n"
         string += BasicLibString.Fill16Char("[HITPOINTS]") + self.m_hitpoints + "\n"
         string += BasicLibString.Fill16Char("[ACCURACY]") + self.m_accuracy + "\n"
@@ -112,7 +114,7 @@ class Enemy(Entity):
     
     def FromLines(self, file):
         line = file.readline()
-        self.m_template = BasicLibString.ParseWord(line, 1)
+        self.m_template.m_id = BasicLibString.ParseWord(line, 1)
         line = file.readline()
         self.m_hitpoints = BasicLibString.ParseWord(line, 1)
         line = file.readline()
@@ -122,7 +124,7 @@ class Enemy(Entity):
         return file
     
     def ToLines(self, string):
-        string += BasicLibString.Fill16Char("[TEMPLATEID]") + str(self.m_template.Id()) + "\n"
+        string += BasicLibString.Fill16Char("[TEMPLATEID]") + str(self.m_template.m_id) + "\n"
         string += BasicLibString.Fill16Char("[HITPOINTS]") + str(self.m_hitpoints) + "\n"
         string += BasicLibString.Fill16Char("[ROOM]") + str(self.m_room) + "\n"
         string += BasicLibString.Fill16Char("[NEXTATTACKTIME]") + str(self.m_nextattacktime) + "\n"
@@ -130,7 +132,8 @@ class Enemy(Entity):
     
     def __repr__(self):
         return self.ToLines("")
-    
+
+'''    
 file = open("enemies.templates")
 i = EnemyTemplate()
 file.readline()
@@ -139,7 +142,7 @@ file.close()
 j = Enemy()
 j.LoadTemplate(i)
 print(j)
-  
+'''  
         
    
     
