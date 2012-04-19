@@ -71,7 +71,7 @@ class EntityDatabaseVector:
         return len(self.container)
     
     def SetValue(self, value):
-        self.container[i].append(value)
+        self.container.append(value)
    
     def GetValue(self, p_id):
         for i in self.container:

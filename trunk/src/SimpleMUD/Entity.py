@@ -31,8 +31,11 @@ class Entity:
         else:
             return False
         
-    def Id(self):
+    def GetId(self):
         return self.m_id
+    
+    def SetId(self, m_id):
+        self.m_id = m_id
 
 '''    
 i = Entity()
