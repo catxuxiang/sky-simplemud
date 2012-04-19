@@ -6,6 +6,10 @@ Created on 2012-4-15
 from EntityDatabase import EntityDatabase, EntityDatabaseVector
 from BasicLib import BasicLibString
 from Enemy import EnemyTemplate
+from BasicLib import BasicLibLogger
+
+m_vector = []
+m_map = {}
 
 class EnemyTemplateDatabase(EntityDatabaseVector):
 
@@ -14,13 +18,15 @@ class EnemyTemplateDatabase(EntityDatabaseVector):
         line = file.readline()
         while line:
             if line.strip() != "":
+                id1 = BasicLibString.ParseWord(line, 1)
                 enemy = EnemyTemplate()
-                enemy.SetId(BasicLibString.ParseWord(line, 1))
+                enemy.SetId(id1)
                 enemy.FromLines(file)
                 print(enemy)
-                self.container.append(enemy)
+                m_vector.append(enemy)
+                BasicLibLogger.USERLOG.Log( "Loaded Enemy: " + m_vector[int(id1)-1].Name() )
             line = file.readline()    
-            #USERLOG.Log( "Loaded Enemy: " + m_vector[id].Name() )
+            
     
 i = EnemyTemplateDatabase()
 i.Load()
