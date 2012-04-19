@@ -4,7 +4,7 @@ Created on 2012-4-14
 @author: Sky
 '''
 import os.path
-import BasicLibTime
+from BasicLib import BasicLibTime
 
 class TextDecorator:
     @staticmethod
@@ -52,7 +52,11 @@ class Logger:
         if(self.m_timestamp):
             message += "[" + BasicLibTime.TimeStamp() + "] " 
         message += p_entry
-        self.m_logfile.write(message + "\n")           
+        self.m_logfile.write(message + "\n")   
+        
+ERRORLOG = Logger("errors.log", "Error Log", True, True)
+USERLOG = Logger("users.log", "User Log", True, True)
+
 
 '''
 def test():
