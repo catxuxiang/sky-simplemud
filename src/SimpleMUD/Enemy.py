@@ -147,11 +147,11 @@ class Enemy(Entity):
         self.m_nextattacktime = BasicLibString.ParseWord(line, 1)
         return file
     
-    def ToLines(self, string):
-        string += BasicLibString.Fill16Char("[TEMPLATEID]") + str(self.m_template.GetId()) + "\n"
+    def ToLines(self):
+        string = BasicLibString.Fill16Char("[TEMPLATEID]") + str(self.m_template.GetId()) + "\n"
         string += BasicLibString.Fill16Char("[HITPOINTS]") + str(self.m_hitpoints) + "\n"
-        string += BasicLibString.Fill16Char("[ROOM]") + str(self.m_room) + "\n"
-        string += BasicLibString.Fill16Char("[NEXTATTACKTIME]") + str(self.m_nextattacktime) + "\n"
+        string += BasicLibString.Fill16Char("[ROOM]") + str(self.m_room.GetId()) + "\n"
+        string += BasicLibString.Fill16Char("[NEXTATTACKTIME]") + " " + str(self.m_nextattacktime) + "\n"
         return string
     
     def __repr__(self):

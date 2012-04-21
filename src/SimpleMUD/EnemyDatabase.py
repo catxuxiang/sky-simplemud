@@ -54,23 +54,26 @@ class EnemyDatabase(EntityDatabase):
                 id1 = BasicLibString.ParseWord(line, 1)
                 enemy = Enemy()
                 enemy.SetId(id1)
+                
                 enemy.FromLines(file)
                 enemy.GetCurrentRoom().AddEnemy(enemy)
                 m_map[int(id1) - 1] = enemy
             line = file.readline() 
+        #print(len(m_map))
+        file.close()
      
-     def Save(self):
-{
-    ofstream file( "enemies/enemies.instances" );
+    def Save(self):
+        file = open("..\enemies\enemies.instances", "w")
+        string = ""
+        for i in m_map:
+            string += BasicLibString.Fill16Char("[ID]") + m_map[i].GetId() + "\n"
+            string += m_map[i].ToLines()
+            string += "\n"
+        file.write(string)
+        file.close()
 
-    iterator itr = begin();
-    while( itr != end() )
-    {
-        file << "[ID]             " << itr->ID() << "\n";
-        file << *itr << "\n";
-        ++itr;
-    }
-}            
-            
-#i = EnemyDatabase()
-#i.Load()
+'''             
+i = EnemyDatabase()
+i.Load()
+i.Save()
+'''
