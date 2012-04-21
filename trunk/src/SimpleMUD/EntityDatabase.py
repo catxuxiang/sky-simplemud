@@ -53,7 +53,7 @@ class EntityDatabase:
         return len(self.container)
     
     def FindOpenId(self):
-        return len(self.container)
+        return len(self.container) + 1
     
     def __iter__(self):
         for i in self.container:

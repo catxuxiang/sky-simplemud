@@ -4,10 +4,71 @@ Created on 2012-4-20
 @author: sky
 '''
 from Entity import Entity
+from Item import Item
 from SimpleMUD import Attributes
 from BasicLib import BasicLibString
 
 class Room(Entity):
+    def GetType(self):
+        return self.m_type
+    
+    def SetType(self, m_type):
+        self.m_type = m_type
+        
+    def GetData(self):
+        return self.m_data
+    
+    def SetData(self, m_data):
+        self.m_data = m_data
+        
+    def GetDescription(self):
+        return self.m_description
+    
+    def SetDescription(self, m_description):
+        self.m_description = m_description
+        
+    def GetAdjacent(self, p_dir):
+        return self.m_rooms[p_dir]
+    
+    def SetAdjacent(self, p_dir, value):
+        self.m_rooms[p_dir] = value
+
+    def GetSpawnWhich(self):
+        return self.m_spawnwhich
+    
+    def SetSpawnWhich(self, m_spawnwhich):
+        self.m_spawnwhich = m_spawnwhich
+        
+    def GetMaxEnemies(self):
+        return self.m_maxenemies
+    
+    def SetMaxEnemies(self, m_maxenemies):
+        self.m_maxenemies = m_maxenemies
+        
+    def GetItems(self):
+        return self.m_items
+    
+    def SetItems(self, m_items):
+        self.m_items = m_items
+        
+    def GetMoney(self):
+        return self.m_money
+    
+    def SetMoney(self, m_money):
+        self.m_money = m_money
+
+    def GetEnemies(self):
+        return self.m_enemies
+    
+    def SetEnemies(self, m_enemies):
+        self.m_enemies = m_enemies
+        
+    def GetPlayers(self):
+        return self.m_players
+    
+    def SetPlayers(self, m_players):
+        self.m_players = m_players 
+    
     def __init__(self):
         Entity.__init__(self)
         self.m_type = Attributes.RoomType_PLAINROOM
@@ -24,6 +85,8 @@ class Room(Entity):
         
         self.m_players = []
         self.m_enemies = []
+        
+        self.m_items = []
         
     def AddPlayer(self, p_player):
         self.m_players.append(p_player)
@@ -88,20 +151,59 @@ class Room(Entity):
         for d in range(0, Attributes.NUMDIRECTIONS):
             line = file.readline()
             self.m_rooms[d] = BasicLibString.ParseWord(line, 1)
-            
+            #print(self.m_rooms[d])
         
         line = file.readline()
         self.m_spawnwhich = BasicLibString.ParseWord(line, 1)
         line = file.readline()
         self.m_maxenemies = BasicLibString.ParseWord(line, 1)
-      
+        #print(self.m_maxenemies)
+        
+    def LoadData(self, file):
+        self.m_items = []
+        line = file.readline()
+        itemids = BasicLibString.RemoveWord(line, 0).strip()
+        for i in itemids.split(' '):
+            if i != "0":
+                item = Item()
+                item.SetId(i)
+                #print(i)
+                self.m_items.append(item)
+                
+        line = file.readline()
+        self.m_money = BasicLibString.ParseWord(line, 1)
+        #print(self.m_money)
+        
+    def SaveData(self):
+        string = "[ITEMS] "
+        for i in self.m_items:
+            string += i.GetId() + " "
+        string += "0\n"
+        string += "[MONEY] " + self.m_money + "\n"
+        return string
+
+
+'''
+i = Room()
+file = open("Room.templates")
+i.LoadTemplate(file)
+'''
+
+'''           
+i = Room()
+file = open("Room.instances")
+file.readline()
+i.LoadData(file)
+print(i.SaveData())     
+'''      
          
 
 
         
-        
+'''        
 a = [1,2,3,4]
 print(a)
 del a[2]
 print(a)
 print(len(a))
+'''
