@@ -6,6 +6,7 @@ Created on 2012-4-15
 
 from Entity import Entity
 from BasicLib import BasicLibString
+from Room import Room
 
 class EnemyTemplate(Entity):
     def __init__(self):
@@ -73,14 +74,32 @@ class EnemyTemplate(Entity):
         
 class Enemy(Entity):   
     def __init__(self):
-        self.m_template = 0
+        self.m_template = None
         self.m_hitpoints = 0
-        self.m_room = 0
+        self.m_room = None
         self.m_nextattacktime = 0
 
     def LoadTemplate(self, p_template):
         self.m_template = p_template
         self.m_hitpoints = p_template.m_hitpoints
+        
+    def GetHitPoints(self):
+        return self.m_hitpoints
+    
+    def SetHitPoints(self, m_hitpoints):
+        self.m_hitpoints = m_hitpoints
+        
+    def GetCurrentRoom(self):
+        return self.m_room
+    
+    def SetCurrentRoom(self, m_room):
+        self.m_room = m_room    
+    
+    def GetNextAttackTime(self):
+        return self.m_nextattacktime  
+    
+    def SetNextAttackTime(self, m_nextattacktime):
+        self.m_nextattacktime = m_nextattacktime              
         
     def Name(self):
         return self.m_template.Name()
@@ -114,17 +133,22 @@ class Enemy(Entity):
     
     def FromLines(self, file):
         line = file.readline()
-        self.m_template.m_id = BasicLibString.ParseWord(line, 1)
+        self.m_template = EnemyTemplate()
+        self.m_template.SetId(BasicLibString.ParseWord(line, 1))
+        #print(self.m_template.GetId())
         line = file.readline()
         self.m_hitpoints = BasicLibString.ParseWord(line, 1)
         line = file.readline()
-        self.m_room = BasicLibString.ParseWord(line, 1)
+        room = Room()
+        room.SetId(BasicLibString.ParseWord(line, 1))
+        self.m_room = room
         line = file.readline()
+        #print(line)
         self.m_nextattacktime = BasicLibString.ParseWord(line, 1)
         return file
     
     def ToLines(self, string):
-        string += BasicLibString.Fill16Char("[TEMPLATEID]") + str(self.m_template.m_id) + "\n"
+        string += BasicLibString.Fill16Char("[TEMPLATEID]") + str(self.m_template.GetId()) + "\n"
         string += BasicLibString.Fill16Char("[HITPOINTS]") + str(self.m_hitpoints) + "\n"
         string += BasicLibString.Fill16Char("[ROOM]") + str(self.m_room) + "\n"
         string += BasicLibString.Fill16Char("[NEXTATTACKTIME]") + str(self.m_nextattacktime) + "\n"

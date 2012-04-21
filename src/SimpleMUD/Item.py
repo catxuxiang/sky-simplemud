@@ -58,13 +58,13 @@ class Item(Entity):
         string += BasicLibString.Fill16Char("[SPEED]") + self.m_speed + "\n"
         string += BasicLibString.Fill16Char("[PRICE]") + self.m_price + "\n"
         return string + str(self.m_attributes)
- 
+''' 
 a = Item()
 file = open("example.itm")
 a.FromLines(file)
 file.close()
 print(a)
-       
+'''       
     
 
     

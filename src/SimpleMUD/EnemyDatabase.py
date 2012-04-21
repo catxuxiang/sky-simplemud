@@ -6,6 +6,7 @@ Created on 2012-4-15
 from EntityDatabase import EntityDatabase, EntityDatabaseVector
 from BasicLib import BasicLibString
 from Enemy import EnemyTemplate
+from Enemy import Enemy
 from BasicLib import BasicLibLogger
 
 m_vector = []
@@ -22,9 +23,9 @@ class EnemyTemplateDatabase(EntityDatabaseVector):
                 enemy = EnemyTemplate()
                 enemy.SetId(id1)
                 enemy.FromLines(file)
-                print(enemy)
+                #print(enemy)
                 m_vector.append(enemy)
-                BasicLibLogger.USERLOG.Log( "Loaded Enemy: " + m_vector[int(id1)-1].Name() )
+                BasicLibLogger.USERLOG.Log( "Loaded Enemy: " + m_vector[int(id1)-1].GetName() )
             line = file.readline()    
             
     
@@ -32,31 +33,44 @@ class EnemyTemplateDatabase(EntityDatabaseVector):
 #i.Load()
     
 class EnemyDatabase(EntityDatabase):
+    def Create(self, p_template, p_room):
+        id1 = self.FindOpenId();
+        e = Enemy()
+        e.SetId(id1)
+        e.LoadTemplate(p_template)
+        e.SetCurrentRoom(p_room)
+        p_room.AddEnemy(e)  
+        m_map[id1 - 1] = e
+
+    def Delete(self, p_enemy):
+        p_enemy.GetCurrentRoom().RemoveEnemy(p_enemy)
+        del p_enemy
+    
     def Load(self):
-        file = open("..\enemies\enemies.templates")
+        file = open("..\enemies\enemies.instances")
         line = file.readline()
         while line:
             if line.strip() != "":
                 id1 = BasicLibString.ParseWord(line, 1)
-                enemy = EnemyTemplate()
+                enemy = Enemy()
                 enemy.SetId(id1)
                 enemy.FromLines(file)
-                print(enemy)
-                m_vector.append(enemy)
-                BasicLibLogger.USERLOG.Log( "Loaded Enemy: " + m_vector[int(id1)-1].Name() )
-            line = file.readline()          
+                enemy.GetCurrentRoom().AddEnemy(enemy)
+                m_map[int(id1) - 1] = enemy
+            line = file.readline() 
+     
+     def Save(self):
 {
-    ifstream file( "enemies/enemies.instances" );
-    entityid id;
-    std::string temp;
+    ofstream file( "enemies/enemies.instances" );
 
-    file >> std::ws;    // eat the whitespace
-    while( file.good() )
+    iterator itr = begin();
+    while( itr != end() )
     {
-        file >> temp >> id;
-        m_map[id].ID() = id;
-        file >> m_map[id] >> std::ws;
-        m_map[id].CurrentRoom()->AddEnemy( id );
+        file << "[ID]             " << itr->ID() << "\n";
+        file << *itr << "\n";
+        ++itr;
     }
-}
-}
+}            
+            
+#i = EnemyDatabase()
+#i.Load()
