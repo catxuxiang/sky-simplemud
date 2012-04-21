@@ -44,7 +44,7 @@ class EntityDatabase:
             return True
     
     def Has(self, p_name):
-        if self.Has(p_name) == None:
+        if self.Find(p_name) == None:
             return False
         else:
             return True
