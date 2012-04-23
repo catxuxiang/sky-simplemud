@@ -11,7 +11,7 @@ l = threading.Lock()
 def PrintSleepThread():
     for i in range(0, 200):
         print(threading.currentThread().getName())
-        #time.sleep(0.001)
+        time.sleep(0.001)
 
 def PrintThread():
     for i in range(0, 200):
