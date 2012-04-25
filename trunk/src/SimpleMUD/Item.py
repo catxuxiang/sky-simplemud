@@ -4,7 +4,7 @@ Created on 2012-4-15
 @author: Sky
 '''
 
-from Entity import Entity
+from SimpleMUD.Entity import Entity
 import Attributes
 from BasicLib import BasicLibString
 
