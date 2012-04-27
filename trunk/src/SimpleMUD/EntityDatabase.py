@@ -87,7 +87,6 @@ k = Entity()
 i.SetValue("222", k)
 for item in i:
     print(item.GetName())
-print(i.Size())
 '''
 
 

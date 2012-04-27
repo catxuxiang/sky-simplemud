@@ -100,3 +100,5 @@ class PlayerDatabase(EntityDatabase):
         p_player.SetActive(False)
         
         self.SavePlayer(p_player)
+        
+playerDatabase = PlayerDatabase()
