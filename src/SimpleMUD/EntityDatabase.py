@@ -3,30 +3,27 @@ Created on 2012-4-14
 
 @author: Sky
 '''
-from Entity import Entity
-
 class EntityDatabase:
-    
     def __init__(self):
-        self.container = {}
+        self.m_map = {}
         
     def SetValue(self, p_id, value):
-        self.container[p_id] = value
+        self.m_map[p_id] = value
         
     def GetValue(self, p_id):
-        for i in self.container.keys():
+        for i in self.m_map.keys():
             if i == p_id:
-                return self.container[i]
+                return self.m_map[i]
         return None
     
     def FindFull(self, p_name):
-        for i in self.container.values():
+        for i in self.m_map.values():
             if i.CompName() == p_name.strip().lower():
                 return i
         return None
     
     def Find(self, p_name):
-        for i in self.container.values():
+        for i in self.m_map.values():
             if i.CompName().find(p_name.strip().lower(), 0) == 0:
                 return i
         return None
@@ -50,31 +47,31 @@ class EntityDatabase:
             return True
         
     def Size(self):
-        return len(self.container)
+        return len(self.m_map)
     
     def FindOpenId(self):
-        return len(self.container) + 1
+        return len(self.m_map) + 1
     
     def __iter__(self):
-        for i in self.container:
-            yield self.container[i]
+        for i in self.m_map:
+            yield self.m_map[i]
             
 class EntityDatabaseVector:
     def __init__(self):
-        self.container = []
+        self.m_vector = []
         
     def __iter__(self):
-        for i in self.container:
+        for i in self.m_vector:
             yield i
             
     def Size(self):
-        return len(self.container)
+        return len(self.m_vector)
     
     def SetValue(self, value):
-        self.container.append(value)
+        self.m_vector.append(value)
    
     def GetValue(self, p_id):
-        for i in self.container:
+        for i in self.m_vector:
             if i.Id() == p_id:
                 return i
         return None
@@ -82,23 +79,15 @@ class EntityDatabaseVector:
         
         
         
-'''    
+''' 
 i = EntityDatabase()
 j = Entity()
 i.SetValue("111", j)
 k = Entity()
 i.SetValue("222", k)
 for item in i:
-    print(item.Name())
+    print(item.GetName())
 print(i.Size())
-
-k = ["111", "222"]
-print(k[0])
-k.append("333")
-print(k)
-del k[0]
-print(k)
-print(k[0])
 '''
 
 
