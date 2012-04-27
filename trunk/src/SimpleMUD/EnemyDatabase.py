@@ -3,14 +3,10 @@ Created on 2012-4-15
 
 @author: Sky
 '''
-from EntityDatabase import EntityDatabase, EntityDatabaseVector
+from SimpleMUD.EntityDatabase import EntityDatabase, EntityDatabaseVector
 from BasicLib import BasicLibString
-from Enemy import EnemyTemplate
-from Enemy import Enemy
+from SimpleMUD.Enemy import EnemyTemplate, Enemy
 from BasicLib import BasicLibLogger
-
-m_vector = []
-m_map = {}
 
 class EnemyTemplateDatabase(EntityDatabaseVector):
 
@@ -24,8 +20,8 @@ class EnemyTemplateDatabase(EntityDatabaseVector):
                 enemy.SetId(id1)
                 enemy.FromLines(file)
                 #print(enemy)
-                m_vector.append(enemy)
-                BasicLibLogger.USERLOG.Log( "Loaded Enemy: " + m_vector[int(id1)-1].GetName() )
+                self.m_vector.append(enemy)
+                BasicLibLogger.USERLOG.Log( "Loaded Enemy: " + self.m_vector[int(id1)-1].GetName() )
             line = file.readline()    
             
     
@@ -40,7 +36,7 @@ class EnemyDatabase(EntityDatabase):
         e.LoadTemplate(p_template)
         e.SetCurrentRoom(p_room)
         p_room.AddEnemy(e)  
-        m_map[id1 - 1] = e
+        self.m_map[id1 - 1] = e
 
     def Delete(self, p_enemy):
         p_enemy.GetCurrentRoom().RemoveEnemy(p_enemy)
@@ -57,17 +53,17 @@ class EnemyDatabase(EntityDatabase):
                 
                 enemy.FromLines(file)
                 enemy.GetCurrentRoom().AddEnemy(enemy)
-                m_map[int(id1) - 1] = enemy
+                self.m_map[int(id1) - 1] = enemy
             line = file.readline() 
-        #print(len(m_map))
+        #print(len(self.m_map))
         file.close()
      
     def Save(self):
         file = open("..\enemies\enemies.instances", "w")
         string = ""
-        for i in m_map:
-            string += BasicLibString.Fill16Char("[ID]") + m_map[i].GetId() + "\n"
-            string += m_map[i].ToLines()
+        for i in self.m_map:
+            string += BasicLibString.Fill16Char("[ID]") + self.m_map[i].GetId() + "\n"
+            string += self.m_map[i].ToLines()
             string += "\n"
         file.write(string)
         file.close()

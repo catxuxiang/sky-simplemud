@@ -185,7 +185,7 @@ class Player(Entity):
             return
         
         i = Item()
-        i.SetId(p_item) #这儿不一定对，以后再改
+        i.SetId(p_item) #perhaps error
         
         for x in range(0, NUMATTRIBUTES):
             self.m_attributes[x] += i.GetAttr( x )
@@ -235,7 +235,7 @@ class Player(Entity):
             return
         
         itm = Item()
-        itm.SetId(p_item) #这儿不一定对，以后再改
+        itm.SetId(p_item) #perhaps error
         
         for x in range(0, NUMATTRIBUTES):
             self.m_baseattributes[x] += itm.GetAttr(x)
@@ -281,7 +281,7 @@ class Player(Entity):
             self.PrintStatbar()
             
     def PrintStatbar(self, p_update):
-        if p_update:# 原本代码这要检查client的Buffered() > 0，暂时去掉该条件
+        if p_update:# origin:client.Buffered() > 0
             return
         
         statbar = white + bold + "["

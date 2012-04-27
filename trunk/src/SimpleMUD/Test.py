@@ -4,6 +4,7 @@ Created on 2012-4-16
 @author: sky
 '''
 
+'''
 class A:
     def __init__(self):
         self.A = "111"
@@ -18,3 +19,8 @@ class B(A):
         
 i = B()
 i.Test()     
+'''
+
+import socket
+
+print(socket.gethostbyname_ex("www.sohu.com"))
