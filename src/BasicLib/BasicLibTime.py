@@ -5,9 +5,6 @@ Created on 2012-4-14
 '''
 import time
 
-def modelName():
-    return __name__
-
 def GetTimeMS():
     return int(time.time() * 1000)
 
