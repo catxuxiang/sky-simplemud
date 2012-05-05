@@ -52,7 +52,7 @@ class DataSocket(Socket):
         return self.m_connected
     
     def Send(self, string):
-        self.m_sock.send(string)
+        return self.m_sock.send(string)
         
     def Receive(self, p_size):
         return self.m_sock.recv(p_size)

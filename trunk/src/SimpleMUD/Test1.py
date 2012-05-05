@@ -3,14 +3,10 @@ Created on 2012-4-27
 
 @author: sky
 '''
-from SimpleMUD.Test import A
 
+i = "123456"
 
-class B(A):
-    i = 2
-    @staticmethod
-    def Test1():
-        print(B.i)
-        
-B.Test()  
-B.Test1()      
+j =i[2:3]
+print(j)
+print(i.find("9"))
+print(i[0:len(i) - 2])
