@@ -4,17 +4,15 @@ Created on 2012-5-2
 @author: Sky
 '''
 from SocketLib.SocketLibSocket import DataSocket
-from BasicLib.BasicLibString import *
+from BasicLib.BasicLibTime import *
 
 BUFFERSIZE = 1024
 TIMECHUNK = 16
 
 class Connection(DataSocket):
-    def __init__(self):
-        self.Initialize()
-        
-    def __init__(self, p_socket):
-        DataSocket.__init__(p_socket)
+    def __init__(self, p_socket = None):
+        if p_socket != None:
+            DataSocket.__init__(self, p_socket)
         self.Initialize()
         
     def Initialize(self):
