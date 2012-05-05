@@ -32,3 +32,9 @@ class SCLogon(ConnectionHandler):
     def Enter(self):
         self.m_connection.Protocol().SendString(self.m_connection, green + bold + "Welcome To SimpleChat!\r\n" + "Please enter your username: " + reset + bold)
         
+    @staticmethod
+    def NoRoom(p_connection):
+        msg = "Sorry, there is no more room on this server.\r\n"
+        p_connection.Send(msg)
+
+        
