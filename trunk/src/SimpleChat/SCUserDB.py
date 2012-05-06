@@ -6,7 +6,6 @@ Created on 2012-5-3
 
 class User:
     def __init__(self, c = None, n = ""):
-        self.__init__()
         self.connection = c
         self.name = n
         

@@ -65,6 +65,7 @@ class ConnectionManager:
                             # close the connection
                             self.Close(c)
                     except:
+                        print("ConnectionManager:Listen() Exception!")
                         c.Close()
                         #print(c.Handler())
                         c.Handler().Hungup()
@@ -78,6 +79,7 @@ class ConnectionManager:
                     c.Handler().Hungup()
                     self.Close(c)
             except:
+                print("ConnectionManager:Send() Exception!")
                 c.Close()
                 c.Handler().Hungup()
                 self.Close(c)
