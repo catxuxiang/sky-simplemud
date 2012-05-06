@@ -38,27 +38,23 @@ BUFFERSIZE = 1024
 
 class Telnet:
     def __init__(self):
-        self.m_buffersize = 0
-        self.m_buffer =[]
+        self.m_buffer =""
         
     def Buffered(self):
-        return self.m_buffersize
+        return len(self.m_buffer) != 0
     
     def Translate(self, p_conn, p_buffer, p_size):
         for i in range(0, p_size):
             c = p_buffer[i]
-            if c >= 32 and c != 127 and self.m_buffersize < BUFFERSIZE:
-                self.m_buffer.append(c)
-                self.m_buffersize += 1
-            elif c == 8 and self.m_buffersize > 0:
-                del self.m_buffer[self.m_buffersize - 1]
-                self.m_buffersize -= 1
+            if c >= 32 and c != 127 and len(self.m_buffer) < BUFFERSIZE:
+                self.m_buffer += chr(c)
+            elif c == 8 and len(self.m_buffer) > 0:
+                self.m_buffer[0:len(self.m_buffer) - 1]
             # c == "\r" or c == "\n"
             elif c == 10 or c == 13:
-                if self.m_buffersize > 0 and p_conn.Handler() != 0:
+                if len(self.m_buffer) > 0 and p_conn.Handler() != 0:
                     p_conn.Handler().Handle(self.m_buffer)
-                self.m_buffersize = 0
-        print(self.m_buffer)
+                self.m_buffer = ""
                 
     def SendString(self, p_conn, p_string):
         p_conn.BufferData(p_string)
