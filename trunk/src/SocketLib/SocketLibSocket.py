@@ -13,8 +13,9 @@ import socket
 class Socket():
     def __init__(self, p_socket):
         self.m_sock = p_socket
-        self.m_sock.setblocking(True)
-        self.localAddress, self.localPort = self.m_sock.getsockname()
+        if self.m_sock != None:
+            self.m_sock.setblocking(True)
+            self.localAddress, self.localPort = self.m_sock.getsockname()
         
     def GetSock(self):
         return self.m_sock
@@ -32,6 +33,12 @@ class Socket():
         self.m_sock.setblocking(p_blockmode)
         
 class DataSocket(Socket):
+    def __init__(self, p_socket = None):
+        Socket.__init__(self, p_socket)
+        self.m_connected = False
+        if p_socket != None:
+            self.m_connected = True
+            
     def Connect(self, p_addr, p_port):
         if self.m_connected == True:
             raise Exception("The socket is already connected!") 
@@ -63,10 +70,11 @@ class DataSocket(Socket):
         
 class ListeningSocket(Socket):
     def __init__(self):
+        Socket.__init__(self, None)
         self.m_listening = False
         
     def Listen(self, p_port):
-        if(self.m_sock == None):
+        if self.m_sock == None:
             self.m_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.m_sock.bind(("localhost", p_port)) 
         self.m_sock.listen(8) 

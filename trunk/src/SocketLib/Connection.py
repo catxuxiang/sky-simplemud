@@ -5,6 +5,7 @@ Created on 2012-5-2
 '''
 from SocketLib.SocketLibSocket import DataSocket
 from BasicLib.BasicLibTime import *
+from SocketLib.Telnet import Telnet
 
 BUFFERSIZE = 1024
 TIMECHUNK = 16
@@ -12,7 +13,7 @@ TIMECHUNK = 16
 class Connection(DataSocket):
     def __init__(self, p_socket = None):
         if p_socket != None:
-            DataSocket.__init__(self, p_socket)
+            DataSocket.__init__(self, p_socket.GetSock())
         self.Initialize()
         
     def Initialize(self):
@@ -23,6 +24,9 @@ class Connection(DataSocket):
         self.m_checksendtime = False
         self.m_creationtime = GetTimeMS()
         self.m_closed = False
+        self.m_handlerstack = []
+        self.m_protocol = Telnet()
+        self.m_sendbuffer = ""
         
     def GetLastSendTime(self):
         if self.m_checksendtime:
@@ -33,6 +37,7 @@ class Connection(DataSocket):
         self.m_sendbuffer += p_buffer
         
     def SendBuffer(self):
+        sent = 0
         if len(self.m_sendbuffer) > 0:
             sent = DataSocket.Send(self.m_sendbuffer)
             self.m_sendbuffer = ""
@@ -46,7 +51,9 @@ class Connection(DataSocket):
                 self.m_lastSendTime = GetTimeS()
                 
     def Receive(self):
-        bytes = DataSocket.Receive(self, BUFFERSIZE)
+        byte = DataSocket.Receive(self, BUFFERSIZE)
+        if len(byte) != 0 and byte[0] == 255:
+            return
         
         t = GetTimeS()
         
@@ -55,10 +62,10 @@ class Connection(DataSocket):
             self.m_datarate = 0
             self.m_lastReceiveTime = t
             
-        self.m_datarate += bytes
+        self.m_datarate += len(byte)
         
         #tell the protocol policy object about the received data.
-        self.m_protocol.Translate(self, self.m_buffer, bytes)
+        self.m_protocol.Translate(self, byte, len(byte))
         
     def GetLastReceiveTime(self):
         return self.m_lastReceiveTime
@@ -67,7 +74,7 @@ class Connection(DataSocket):
         self.m_closed = True
         
     def CloseSocket(self):
-        DataSocket.Close()
+        DataSocket.Close(self)
         self.ClearHandlers()
         
     def GetDataRate(self):

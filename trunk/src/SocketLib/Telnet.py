@@ -49,7 +49,7 @@ class Telnet:
             if ord(c) >= 32 and ord(c) != 127 and self.m_buffersize < BUFFERSIZE:
                 self.m_buffer[self.m_buffersize] = c
                 self.m_buffersize += 1
-            elif c == 8 and self.m_buffersize > 0:
+            elif ord(c) == 8 and self.m_buffersize > 0:
                 self.m_buffersize -= 1
             elif c == '\n' or c == '\r':
                 if self.m_buffersize > 0 and p_conn.Handler() != 0:

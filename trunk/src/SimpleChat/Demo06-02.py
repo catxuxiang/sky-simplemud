@@ -8,10 +8,10 @@ from SocketLib.ConnectionManager import ConnectionManager
 from time import sleep
 
 lm = ListeningManager()
-cm = ConnectionManager(128)
+cm = ConnectionManager(128, 60, 65536)
 
 lm.SetConnectionManager(cm)
-lm.AddPort(5099)
+lm.AddPort(5098)
 
 while True:
     lm.Listen()

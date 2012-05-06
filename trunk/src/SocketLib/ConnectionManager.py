@@ -3,13 +3,15 @@ Created on 2012-5-5
 
 @author: Sky
 '''
-from SocketLib.SocketSet import MAX
+from SocketLib.SocketSet import MAX, SocketSet
 from SocketLib.Connection import Connection
 from SimpleChat.SCLogon import SCLogon
 from SocketLib.ConnectionHandler import ConnectionHandler
 
 class ConnectionManager:
     def __init__(self, p_maxdatarate, p_sentimeout, p_maxbuffered):
+        self.m_connections = []
+        self.m_set = SocketSet()
         self.m_maxdatarate = p_maxdatarate
         self.m_sendtimeout = p_sentimeout
         self.m_maxbuffered = p_maxbuffered
@@ -65,6 +67,7 @@ class ConnectionManager:
                             self.Close(c)
                     except:
                         c.Close()
+                        #print(c.Handler())
                         c.Handler().Hungup()
                         self.Close(c)
     def Send(self):
