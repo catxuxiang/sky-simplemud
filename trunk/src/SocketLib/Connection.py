@@ -39,7 +39,7 @@ class Connection(DataSocket):
     def SendBuffer(self):
         sent = 0
         if len(self.m_sendbuffer) > 0:
-            sent = DataSocket.Send(self.m_sendbuffer)
+            sent = DataSocket.Send(self, self.m_sendbuffer)
             self.m_sendbuffer = ""
 
         if sent > 0:
