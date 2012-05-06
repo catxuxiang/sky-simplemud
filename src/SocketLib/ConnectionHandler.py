@@ -22,8 +22,8 @@ class ConnectionHandler:
     def Leave(self):
         return 0
     
-    def Hungup(self, ip):
+    def Hungup(self):
         return 0
 
-    def Flooded(self, ip):
+    def Flooded(self):
         return 0

@@ -5,9 +5,12 @@ Created on 2012-5-5
 '''
 from SocketLib.SocketSet import MAX
 from SocketLib.SocketLibSocket import ListeningSocket, DataSocket
+from SocketLib.SocketSet import SocketSet
 
 class ListeningManager:
     def __init__(self):
+        self.m_sockets = []
+        self.m_set = SocketSet()
         self.m_manager = None
         
     def __del__(self):

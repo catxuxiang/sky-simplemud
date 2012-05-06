@@ -33,3 +33,9 @@ class SocketSet:
             self.m_activityset.append(i)
         infds,outfds,errfds = select.select(self.m_activityset, [], [], p_time)
         return len(infds)
+    
+    def HasActivity(self, p_sock):
+        for sock in self.m_activityset:
+            if sock == p_sock.GetSock():
+                return True
+        return False
