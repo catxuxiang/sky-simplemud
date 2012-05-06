@@ -6,7 +6,6 @@ Created on 2012-5-5
 from SocketLib.SocketSet import MAX, SocketSet
 from SocketLib.Connection import Connection
 from SimpleChat.SCLogon import SCLogon
-from SocketLib.ConnectionHandler import ConnectionHandler
 
 class ConnectionManager:
     def __init__(self, p_maxdatarate, p_sentimeout, p_maxbuffered):
@@ -33,7 +32,7 @@ class ConnectionManager:
             self.m_connections.append(conn)
             conn.SetBlocking(False)
             self.m_set.AddSocket(conn)
-            conn.AddHandler(ConnectionHandler(conn))
+            conn.AddHandler(SCLogon(conn))
             
     def Close(self, conn):
         self.m_set.RemoveSocket(conn)

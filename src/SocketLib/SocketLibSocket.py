@@ -59,7 +59,7 @@ class DataSocket(Socket):
         return self.m_connected
     
     def Send(self, string):
-        return self.m_sock.send(string)
+        return self.m_sock.send(string.encode("ascii"))
         
     def Receive(self, p_size):
         return self.m_sock.recv(p_size)
