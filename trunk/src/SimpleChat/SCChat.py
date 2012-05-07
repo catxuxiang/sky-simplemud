@@ -23,7 +23,7 @@ class SCChat(ConnectionHandler):
             if command == "/who":
                 wholist = magenta + bold + "Who is in the room: "
                 
-                if len(userDatabase.m_users) == 0:
+                if len(userDatabase.m_users) != 0:
                     for i in userDatabase.m_users:
                         wholist += i.name
                         wholist += ", "
