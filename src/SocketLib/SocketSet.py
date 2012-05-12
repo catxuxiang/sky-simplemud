@@ -31,7 +31,9 @@ class SocketSet:
         self.m_activityset = []
         for i in self.m_set:
             self.m_activityset.append(i)
+        #print("before:" + str(len(self.m_activityset)))
         infds,outfds,errfds = select.select(self.m_activityset, [], [], p_time)
+        #print("after:" + str(len(self.m_activityset)))
         return len(infds)
     
     def HasActivity(self, p_sock):

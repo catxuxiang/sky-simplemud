@@ -8,11 +8,11 @@ from SocketLib.Connection import Connection
 from SimpleChat.SCLogon import SCLogon
 
 class ConnectionManager:
-    def __init__(self, p_maxdatarate, p_sentimeout, p_maxbuffered):
+    def __init__(self, p_maxdatarate, p_sendtimeout, p_maxbuffered):
         self.m_connections = []
         self.m_set = SocketSet()
         self.m_maxdatarate = p_maxdatarate
-        self.m_sendtimeout = p_sentimeout
+        self.m_sendtimeout = p_sendtimeout
         self.m_maxbuffered = p_maxbuffered
         
     def __del__(self):
@@ -64,7 +64,7 @@ class ConnectionManager:
                             
                             # close the connection
                             self.Close(c)
-                    except:
+                    except Exception:
                         print("ConnectionManager:Listen() Exception!")
                         c.Close()
                         #print(c.Handler())

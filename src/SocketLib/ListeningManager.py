@@ -31,7 +31,6 @@ class ListeningManager:
         self.m_manager = p_manager
         
     def Listen(self):
-        datasock = DataSocket()
         if self.m_set.Poll() > 0:
             for i in self.m_sockets:
                 if self.m_set.HasActivity(i):

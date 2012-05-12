@@ -85,7 +85,7 @@ class ListeningSocket(Socket):
         return DataSocket(client)
     
     def Close(self):
-        self.m_sock.close()
+        Socket.Close(self)
         self.m_listening = False
 
     
