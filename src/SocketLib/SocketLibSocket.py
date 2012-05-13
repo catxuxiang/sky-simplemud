@@ -62,7 +62,11 @@ class DataSocket(Socket):
         return self.m_sock.send(string.encode("ascii"))
         
     def Receive(self, p_size):
-        return self.m_sock.recv(p_size)
+        #In no blocking mode, it is possible that socket is unable to receive datas. 
+        try:        
+            return self.m_sock.recv(p_size)
+        except Exception:
+            return ""       
     
     def Close(self):
         Socket.Close(self)
@@ -81,8 +85,12 @@ class ListeningSocket(Socket):
         self.m_listening = True
         
     def Accept(self):
-        client, addr = self.m_sock.accept()
-        return DataSocket(client)
+        #In no blocking mode, it is possible that socket is unable to receive datas. 
+        try:
+            client, _ = self.m_sock.accept()
+            return DataSocket(client)
+        except Exception:
+            return None
     
     def Close(self):
         Socket.Close(self)
