@@ -55,21 +55,21 @@ class ConnectionManager:
         if socks > 0:
             for c in self.m_connections:
                 if self.m_set.HasActivity(c):
-                    try:
-                        c.Receive()
-                        if c.GetCurrentDataRate() > self.m_maxdatarate:
-                            # too much data was sent, tell the protocol handler
-                            c.Close()
-                            c.Handler().Flooded()
-                            
-                            # close the connection
-                            self.Close(c)
-                    except Exception:
-                        print("ConnectionManager:Listen() Exception!")
+                    #try:
+                    c.Receive()
+                    if c.GetCurrentDataRate() > self.m_maxdatarate:
+                        # too much data was sent, tell the protocol handler
                         c.Close()
-                        #print(c.Handler())
-                        c.Handler().Hungup()
+                        c.Handler().Flooded()
+                        
+                        # close the connection
                         self.Close(c)
+                    #except Exception:
+                    #    print("ConnectionManager:Listen() Exception!")
+                    #    c.Close()
+                    #    #print(c.Handler())
+                    #    c.Handler().Hungup()
+                    #    self.Close(c)
     def Send(self):
         for c in self.m_connections:
             try:

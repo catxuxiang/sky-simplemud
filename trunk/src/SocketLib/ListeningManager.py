@@ -35,6 +35,7 @@ class ListeningManager:
             for i in self.m_sockets:
                 if self.m_set.HasActivity(i):
                     datasock = i.Accept()
-                    self.m_manager.NewConnection(datasock)
+                    if datasock != None:
+                        self.m_manager.NewConnection(datasock)
 
     
