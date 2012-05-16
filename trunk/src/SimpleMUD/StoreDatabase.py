@@ -3,12 +3,10 @@ Created on 2012-4-21
 
 @author: Sky
 '''
-from EntityDatabase import EntityDatabase
-from BasicLib import BasicLibString
-from Store import Store
-from BasicLib import BasicLibLogger
-
-m_map = {}
+from SimpleMUD.EntityDatabase import EntityDatabase
+from BasicLib.BasicLibString import ParseWord
+from SimpleMUD.Store import Store
+from BasicLib.BasicLibLogger import USERLOG
 
 class StoreDatabase(EntityDatabase):
     def Load(self):
@@ -16,18 +14,14 @@ class StoreDatabase(EntityDatabase):
         line = file.readline()
         while line:
             if line.strip() != "":
-                id1 = BasicLibString.ParseWord(line, 1)
+                id1 = ParseWord(line, 1)
                 store = Store()
                 store.SetId(id1)
                 store.FromLines(file)
-                m_map[int(id1) - 1] = store
-                BasicLibLogger.USERLOG.Log( "Loaded Store: " + m_map[int(id1) - 1].GetName())
+                self.m_map.append(store)
+                USERLOG.Log("Loaded Store: " + self.m_map[len(self.m_map) - 1].GetName())
             line = file.readline() 
-        print(len(m_map))
         file.close()  
-        return True      
-
-'''    
-i = StoreDatabase()
-i.Load()
-'''
+        return True
+    
+storeDatabase = StoreDatabase()

@@ -67,6 +67,9 @@ class EnemyDatabase(EntityDatabase):
             string += "\n"
         file.write(string)
         file.close()
+        
+enemyTemplateDatabase = EnemyTemplateDatabase()
+enemyDatabase = EnemyDatabase()
 
 '''             
 i = EnemyDatabase()

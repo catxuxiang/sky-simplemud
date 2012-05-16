@@ -3,8 +3,8 @@ Created on 2012-4-20
 
 @author: sky
 '''
-from Entity import Entity
-from Item import Item
+from SimpleMUD.Entity import Entity
+from SimpleMUD.Item import Item
 from SimpleMUD import Attributes
 from BasicLib import BasicLibString
 
