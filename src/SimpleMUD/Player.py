@@ -17,7 +17,7 @@ class Player(Entity):
         self.m_pass = "UNDEFINED"
         self.m_rank = PlayerRank_REGULAR
         
-        self.m_client = None
+        self.m_connection = None
         self.m_loggedin = False
         self.m_active = False
         self.m_newbie = True
@@ -101,11 +101,11 @@ class Player(Entity):
     def SetRank(self, m_rank):
         self.m_rank = m_rank
         
-    def GetClient(self):
-        return self.m_client
+    def GetConn(self):
+        return self.m_connection
     
-    def SetClient(self, m_client):
-        self.m_client = m_client
+    def SetConn(self, m_connection):
+        self.m_connection = m_connection
         
     def GetLoggedIn(self):
         return self.m_loggedin
@@ -140,13 +140,13 @@ class Player(Entity):
     
     def GetWeapon(self):
         if self.m_weapon == -1:
-            return 0
+            return None
         else:
             return self.m_inventory[self.m_weapon] #return item id
         
     def GetArmor(self):
         if self.m_armor == -1:
-            return 0
+            return None
         else:
             return self.m_inventory[self.m_armor] #return item id
         

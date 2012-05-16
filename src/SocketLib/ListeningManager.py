@@ -4,7 +4,7 @@ Created on 2012-5-5
 @author: Sky
 '''
 from SocketLib.SocketSet import MAX
-from SocketLib.SocketLibSocket import ListeningSocket, DataSocket
+from SocketLib.SocketLibSocket import ListeningSocket
 from SocketLib.SocketSet import SocketSet
 
 class ListeningManager:

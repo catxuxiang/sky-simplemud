@@ -35,33 +35,33 @@ class Logon(Telnet):
             
     def Handle(self, p_data):
         if self.m_errors == 5:
-            self.m_client.send(red + bold + "Too many incorrect responses, closing connection..." + newline)
-            self.m_client.close()
+            self.m_connection.send(red + bold + "Too many incorrect responses, closing connection..." + newline)
+            self.m_connection.close()
             return
         
         if self.m_state == LogonState_NEWCONNECTION:
             if p_data.lower() == "new":
                 self.m_state = LogonState_NEWUSER
-                self.m_client.send(yellow + "Please enter your desired name: " + reset)
+                self.m_connection.send(yellow + "Please enter your desired name: " + reset)
             else:
                 playerdb = playerDatabase.FindFull(p_data)
                 if(playerdb == None):
                     self.m_errors += 1
-                    self.m_client.send(red + bold + "Sorry, the user \"" + white + p_data + red + "\" does not exist.\r\n" + "Please enter your name, or \"new\" if you are new: " + reset)
+                    self.m_connection.send(red + bold + "Sorry, the user \"" + white + p_data + red + "\" does not exist.\r\n" + "Please enter your name, or \"new\" if you are new: " + reset)
                 else:
                     self.m_state = LogonState_ENTERPASS
                     self.m_name = p_data
                     self.m_pass = playerdb.GetPassword()
-                    self.m_client.send(green + bold + "Welcome, " + white + p_data + red + newline + green + "Please enter your password: " + reset)
+                    self.m_connection.send(green + bold + "Welcome, " + white + p_data + red + newline + green + "Please enter your password: " + reset)
             return
      
         if self.m_state == LogonState_ENTERNEWPASS:
             if len(p_data.strip()) == 0:
                 self.m_errors += 1
-                self.m_client.send(red + bold + "INVALID PASSWORD!" + green + "Please enter your desired password: " + reset)
+                self.m_connection.send(red + bold + "INVALID PASSWORD!" + green + "Please enter your desired password: " + reset)
                 return
             
-            self.m_client.send(green + "Thank you! You are now entering the realm..." + newline)
+            self.m_connection.send(green + "Thank you! You are now entering the realm..." + newline)
             p = Player()
             p.SetName(self.m_name)
             p.SetPassword(p_data)
@@ -78,16 +78,16 @@ class Logon(Telnet):
         
         if self.m_state == LogonState_ENTERPASS:
             if self.m_pass == p_data:
-                self.m_client.send(green + "Thank you! You are now entering the realm..." + newline)
+                self.m_connection.send(green + "Thank you! You are now entering the realm..." + newline)
                 self.GotoGame()
             else:
                 self.m_errors += 1
-                self.m_client.send(red + bold + "INVALID PASSWORD!" + newline + yellow + "Please enter your password: " + reset)
+                self.m_connection.send(red + bold + "INVALID PASSWORD!" + newline + yellow + "Please enter your password: " + reset)
             return
         
     def Enter(self):
         USERLOG.Log(self.m_name + " - entered login state.")
-        self.m_client.send(red + bold + "Welcome To SimpleMUD v1.0\r\n" + "Please enter your name, or \"new\" if you are new: " + reset)
+        self.m_connection.send(red + bold + "Welcome To SimpleMUD v1.0\r\n" + "Please enter your name, or \"new\" if you are new: " + reset)
 
     def GotoGame(self, p_newbie):
         p = playerDatabase.FindFull(self.m_name)
@@ -96,8 +96,6 @@ class Logon(Telnet):
             p.GetClient().close()
         
         p.SetNewbie(p_newbie)
-        p.SetClient(self.m_client)
-
-    // go to the game.
-    p.Conn()->SwitchHandler( new Game( *p.Conn(), p.ID() ) );
+        p.SetConn(self.m_connection)
+        p.GetConn().SwitchHandler(Game(p.Conn(), p.GetId()))
 }

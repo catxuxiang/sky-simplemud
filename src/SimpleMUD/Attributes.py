@@ -165,6 +165,8 @@ NUMDIRECTIONS = 4
 def OppositeDirection(p_dir):
     return (p_dir + 2) % 4
 
+DIRECTIONSTRINGS = ["NORTH", "EAST", "SOUTH", "WEST"]
+
 def GetDirectionString(index):
     if index == Direction_NORTH:
         return "NORTH"
