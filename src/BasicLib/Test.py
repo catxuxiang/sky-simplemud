@@ -3,6 +3,10 @@ Created on 2012-4-14
 
 @author: Sky
 '''
-from BasicLib import BasicLibTime
-print(BasicLibTime.TimeStamp())
-print(111)
+a = {}
+a["aaa"] = 1
+for i in a.keys:
+    print(i)
+    
+print(1 in a)
+print("aaa" in a)

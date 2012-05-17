@@ -3,6 +3,7 @@ Created on 2012-4-16
 
 @author: sky
 '''
-from SimpleChat.SCUserDB import userDatabase
-
-print(userDatabase)   
+a="321"
+print(a[0])
+print(a[0] < "4")
+print(a[0] < "1") 
