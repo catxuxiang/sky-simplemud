@@ -71,10 +71,10 @@ class Player(Entity):
         self.m_experience = m_experience
         
     def GetCurrentRoom(self):
-        return self.m_room
+        return roomDatabase.GetValue(self.m_room)
     
     def SetCurrentRoom(self, m_room):
-        self.m_room = m_room
+        self.m_room = m_room.GetId()
         
     def GetMoney(self):
         return self.m_money
@@ -89,7 +89,10 @@ class Player(Entity):
         self.m_nextattacktime = m_nextattacktime
         
     def GetItem(self, p_index):
-        return self.m_inventory[p_index]
+        if p_index >= len(self.m_inventory):
+            return None
+        else: 
+            return self.m_inventory[p_index]
     
     def GetItems(self):
         return self.m_items
@@ -279,17 +282,17 @@ class Player(Entity):
         return -1
             
     def SendString(self, p_string):
-        if self.GetClient() == None:
+        if self.GetConn() == None:
             ERRORLOG.Log("Trying to send string to player " + self.GetName() + " but player is not connected.")
             return
         
-        self.GetClient().send(p_string + newline)
+        self.GetConn().Protocol().SendString(self.GetConn(), p_string + newline)
         
         if self.GetActive():
             self.PrintStatbar()
             
-    def PrintStatbar(self, p_update):
-        if p_update:# origin:client.Buffered() > 0
+    def PrintStatbar(self, p_update = False):
+        if p_update and self.GetConn().Protocol().Buffered() > 0:
             return
         
         statbar = white + bold + "["
@@ -305,8 +308,8 @@ class Player(Entity):
         else:
             statbar += green
             
-        statbar += self.HitPoints() + white + "/" + self.GetAttr(Attribute_MAXHITPOINTS) + "] "
-        self.GetClient().send(clearline + "\r" + statbar + reset)
+        statbar += str(self.HitPoints()) + white + "/" + str(self.GetAttr(Attribute_MAXHITPOINTS)) + "] "
+        self.GetConn().Protocol().SendString(self.GetConn(), clearline + "\r" + statbar + reset)
         
     def ToLines(self):
         string = ""
@@ -351,7 +354,7 @@ class Player(Entity):
         line = file.readline()
         self.m_level = int(BasicLibString.ParseWord(line, 1)) 
         line = file.readline()
-        self.m_room = roomDatabase.GetValue(BasicLibString.ParseWord(line, 1)) 
+        self.m_room = BasicLibString.ParseWord(line, 1) 
         line = file.readline()
         self.m_money = BasicLibString.ParseWord(line, 1) 
         line = file.readline()

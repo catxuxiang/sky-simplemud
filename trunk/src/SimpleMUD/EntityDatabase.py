@@ -72,7 +72,7 @@ class EntityDatabaseVector:
    
     def GetValue(self, p_id):
         for i in self.m_vector:
-            if i.Id() == p_id:
+            if i.GetId() == p_id:
                 return i
         return None
             

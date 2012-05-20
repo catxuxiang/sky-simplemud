@@ -93,7 +93,7 @@ class Room(Entity):
         
     def RemovePlayer(self, p_player):
         for i in self.m_players:
-            if i.GetId() == p_player.GetId():
+            if i == p_player:
                 del i
                 
     def FindItem(self, p_item):

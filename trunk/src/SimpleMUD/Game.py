@@ -94,7 +94,10 @@ class Game(ConnectionHandler):
             return
         
         if firstword == "who":
-            p.SendString(self.WhoList(ParseWord(p_data, 1).lower()))
+            if(p_data.strip() == "who"):
+                p.SendString(self.WhoList())
+            else:
+                p.SendString(self.WhoList("all"))
             return
         
         if firstword == "look" or firstword == "l":
@@ -258,9 +261,10 @@ class Game(ConnectionHandler):
         self.m_lastcommand = ""
         
         p = self.m_player
+        print(type(p))
         p.GetCurrentRoom().AddPlayer(p.GetId())
         p.SetActive(True)
-        p.LoggedIn(True)
+        p.SetLoggedIn(True)
         
         self.SendGame(bold + green + p.GetName() + " has entered the realm.")
         
@@ -291,14 +295,16 @@ class Game(ConnectionHandler):
         self.LogoutMessage(p.GetName() + " has been kicked for flooding!")
         
     def SendGlobal(self, p_str):
-        for i in playerDatabase.m_map:
-            if i.GetLoggedIn():
-                i.SendString(p_str)
+        map1 = playerDatabase.m_map
+        for i in map1:
+            if map1[i].GetLoggedIn():
+                map1[i].SendString(p_str)
 
     def SendGame(self, p_str):
-        for i in playerDatabase.m_map:
-            if i.GetActive():
-                i.SendString(p_str)     
+        map1 = playerDatabase.m_map
+        for i in map1:
+            if map1[i].GetActive():
+                map1[i].SendString(p_str)     
                 
     def LogoutMessage(self, p_reason):
         self.SendGame(red + bold + p_reason)
@@ -319,7 +325,7 @@ class Game(ConnectionHandler):
             
     def GetWhoStr(self, p):
         string = " " + p.GetName() + "| "
-        string += p.GetLevel() + "| "
+        string += str(p.Level()) + "| "
         
         if p.GetActive():
             string += green + "Online  " + white
@@ -340,7 +346,7 @@ class Game(ConnectionHandler):
         string += white + "\r\n"
         return string
             
-    def WhoList(self, p_who):
+    def WhoList(self, p_who = ""):
         string = white + bold + \
         "--------------------------------------------------------------------------------\r\n" + \
         " Name             | Level     | Activity | Rank\r\n" + \
@@ -348,12 +354,14 @@ class Game(ConnectionHandler):
         
         whostr = ""
         if p_who == "all":
-            for i in playerDatabase.m_map:
-                whostr += self.GetWhoStr(i)
+            map1 = playerDatabase.m_map
+            for i in map1:
+                whostr += self.GetWhoStr(map1[i])
         else:
-            for i in playerDatabase.m_map:
-                if i.GetLoggedIn():
-                    whostr + self.GetWhoStr(i)    
+            map1 = playerDatabase.m_map
+            for i in map1:
+                if map1[i].GetLoggedIn():
+                    whostr += self.GetWhoStr(map1[i])    
         
         string += whostr
         string += \
@@ -412,28 +420,28 @@ class Game(ConnectionHandler):
         p = self.m_player
         return white + bold + \
         "---------------------------------- Your Stats ----------------------------------\r\n" + \
-        " Name:          " + p.GetName() + "\r\n" + \
-        " Rank:          " + GetRankString(p.Rank()) + "\r\n" + \
-        " HP/Max:        " + p.GetHitPoints() + "/" + p.GetAttr(Attribute_MAXHITPOINTS) + \
-        "  (" + float(p.GetHitPoints()/p.GetAttr(Attribute_MAXHITPOINTS)) + "%)\r\n" + \
-        self.PrintExperience() + "\r\n" + \
-        " Strength:      " + p.GetAttr(Attribute_STRENGTH) + \
-        " Accuracy:      " + p.GetAttr(Attribute_ACCURACY) + "\r\n" + \
-        " Health:        " + p.GetAttr(Attribute_HEALTH) + \
-        " Dodging:       " + p.GetAttr(Attribute_DODGING) + "\r\n" + \
-        " Agility:       " + p.GetAttr( Attribute_AGILITY) + \
-        " Strike Damage: " + p.GetAttr(Attribute_STRIKEDAMAGE) + "\r\n" + \
-        " StatPoints:    " + p.StatPoints() + \
-        " Damage Absorb: " + p.GetAttr(Attribute_DAMAGEABSORB) + "\r\n" + \
+        " Name:          " + str(p.GetName()) + "\r\n" + \
+        " Rank:          " + str(GetRankString(p.GetRank())) + "\r\n" + \
+        " HP/Max:        " + str(p.HitPoints()) + "/" + str(p.GetAttr(Attribute_MAXHITPOINTS)) + \
+        "  (" + str(p.HitPoints()/p.GetAttr(Attribute_MAXHITPOINTS)) + "%)\r\n" + \
+        str(self.PrintExperience()) + "\r\n" + \
+        " Strength:      " + str(p.GetAttr(Attribute_STRENGTH)) + \
+        " Accuracy:      " + str(p.GetAttr(Attribute_ACCURACY)) + "\r\n" + \
+        " Health:        " + str(p.GetAttr(Attribute_HEALTH)) + \
+        " Dodging:       " + str(p.GetAttr(Attribute_DODGING)) + "\r\n" + \
+        " Agility:       " + str(p.GetAttr( Attribute_AGILITY)) + \
+        " Strike Damage: " + str(p.GetAttr(Attribute_STRIKEDAMAGE)) + "\r\n" + \
+        " StatPoints:    " + str(p.GetStatPoints()) + \
+        " Damage Absorb: " + str(p.GetAttr(Attribute_DAMAGEABSORB)) + "\r\n" + \
         "--------------------------------------------------------------------------------"
         
     def PrintExperience(self):
         p = self.m_player
         return white + bold + \
-        " Level:         " + p.GetLevel() + "\r\n" + \
-        " Experience:    " + p.GetExperience() + "/" + \
-        p.NeedForLevel(p.GetLevel() + 1) + " (" + \
-        float(p.GetExperience(), p.NeedForLevel(p.GetLevel() + 1)) + \
+        " Level:         " + str(p.Level()) + "\r\n" + \
+        " Experience:    " + str(p.GetExperience()) + "/" + \
+        str(p.NeedForLevel(p.Level() + 1)) + " (" + \
+        str(int(p.GetExperience())/p.NeedForLevel(p.Level() + 1)) + \
         "%)"
         
     def PrintInventory(self):
@@ -545,7 +553,7 @@ class Game(ConnectionHandler):
         temp = bold + cyan + "People: "
         count = 0
         for i in p_room.GetPlayers():
-            temp += i.GetName() + ", "
+            temp += playerDatabase.GetValue(i).GetName() + ", "
             count += 1
             
         if count > 0:
@@ -569,12 +577,13 @@ class Game(ConnectionHandler):
     
     @staticmethod
     def SendRoom(p_text, p_room):
+        print("222" + str(p_room) + "111")
         for i in p_room.GetPlayers():
-            i.SendString(p_text)
+            playerDatabase.GetValue(i).SendString(p_text)
             
     def Move(self, p_direction):
         p = self.m_player
-        next = p.GetCurrentRoom().GetAdjacent(p_direction)
+        next = roomDatabase.GetValue(p.GetCurrentRoom().GetAdjacent(p_direction))
         previous = p.GetCurrentRoom()
         
         if next == None:
@@ -815,10 +824,10 @@ class Game(ConnectionHandler):
         if damage < 1:
             damage = 1
         
-        e.SetHitPoints(e.GetHitPoints() - damage)
+        e.SetHitPoints(e.HitPoints() - damage)
         Game.SendRoom(red + p.GetName() + " hits " + e.GetName() + " for " + damage + " damage!", p.GetCurrentRoom())
         
-        if e.GetHitPoints() <= 0:
+        if e.HitPoints() <= 0:
             self.EnemyKilled(e.GetId(), self.m_player)
             
     def EnemyKilled(self, p_enemy, p_player):

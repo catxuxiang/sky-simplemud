@@ -13,24 +13,26 @@ class PlayerDatabase(EntityDatabase):
         return len(self.m_map)
     
     def FindActive(self, p_name):
+        map1 = self.m_map
         for i in self.m_map:
-            if i.MatchFull(p_name) and i.GetActive():
-                return i
+            if map1[i].MatchFull(p_name) and map1[i].GetActive():
+                return map1[i]
             
-        for i in self.m_map:
-            if i.Match(p_name) and i.GetActive():
-                return i
+        for i in map1:
+            if map1[i].Match(p_name) and map1[i].GetActive():
+                return map1[i]
             
         return None
     
     def FindLoggedIn(self, p_name):
-        for i in self.m_map:
-            if i.MatchFull(p_name) and i.GetLoggedIn():
-                return i
+        map1 = self.m_map
+        for i in map1:
+            if map1[i].MatchFull(p_name) and map1[i].GetLoggedIn():
+                return map1[i]
             
-        for i in self.m_map:
-            if i.Match(p_name) and i.GetLoggedIn():
-                return i
+        for i in map1:
+            if map1[i].Match(p_name) and map1[i].GetLoggedIn():
+                return map1[i]
             
         return None
     
@@ -78,8 +80,9 @@ class PlayerDatabase(EntityDatabase):
         return True
 
     def AddPlayer(self, p_player):
-        for i in self.m_map:
-            if i.GetId() == p_player.GetId() or i.GetName() == p_player.GetName():
+        map1 = self.m_map
+        for i in map1:
+            if map1[i].GetId() == p_player.GetId() or map1[i].GetName() == p_player.GetName():
                 return False
             
         self.m_map[int(p_player.GetId()) - 1] = p_player
@@ -95,7 +98,7 @@ class PlayerDatabase(EntityDatabase):
     def Logout(self, p_player):
         USERLOG.Log("User " + p_player.GetName() + " logged off.")
         
-        p_player.GetClient().close()
+        p_player.SetConn(None)
         p_player.SetLoggedIn(False)
         p_player.SetActive(False)
         
