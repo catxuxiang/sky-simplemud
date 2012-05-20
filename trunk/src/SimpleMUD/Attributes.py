@@ -55,7 +55,7 @@ def GetAttribute(p_str):
         return Attribute_DAMAGEABSORB
     elif p_str == "HPREGEN":
         return Attribute_HPREGEN  
-    
+'''    
 class AttributeSet:
     def __init__(self):
         self.m_attributes = []
@@ -80,6 +80,7 @@ class AttributeSet:
             
     def __repr__(self):
         return self.ToLines("")
+'''
 
 '''        
 i = AttributeSet()

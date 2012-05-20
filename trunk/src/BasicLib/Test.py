@@ -5,8 +5,5 @@ Created on 2012-4-14
 '''
 a = {}
 a["aaa"] = 1
-for i in a.keys:
+for i in a:
     print(i)
-    
-print(1 in a)
-print("aaa" in a)

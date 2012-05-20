@@ -144,7 +144,7 @@ class Enemy(Entity):
         self.m_room = room
         line = file.readline()
         #print(line)
-        self.m_nextattacktime = ParseWord(line, 1)
+        self.m_nextattacktime = int(ParseWord(line, 1))
         return file
     
     def ToLines(self):
@@ -155,7 +155,7 @@ class Enemy(Entity):
         return string
     
     def __repr__(self):
-        return self.ToLines("")
+        return self.ToLines()
 
 '''    
 file = open("enemies.templates")

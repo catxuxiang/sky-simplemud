@@ -6,7 +6,7 @@ Created on 2012-5-14
 from SocketLib.ConnectionHandler import ConnectionHandler
 from BasicLib.BasicLibString import *
 from SocketLib.Telnet import *
-from BasicLib.BasicLibTime import TimeStamp, DateStamp
+from BasicLib.BasicLibTime import TimeStamp, DateStamp, Timer
 from SimpleMUD.Attributes import *
 from SimpleMUD.PlayerDatabase import playerDatabase
 from SimpleMUD.ItemDatabase import itemDatabase
@@ -18,19 +18,22 @@ from BasicLib.BasicLibRandom import RandomInt
 
 PLAYERITEMS = 16
 class Game(ConnectionHandler):
-    s_timer = 0
-    s_running = False
+    s_timer = Timer()
+    s_running = True
     def __init__(self, p_conn, p_player):
         ConnectionHandler.__init__(self, p_conn)
         self.m_player = p_player
-        
-    def GetTimer(self):
+    
+    @staticmethod   
+    def GetTimer():
         return Game.s_timer
     
-    def GetRunning(self):
+    @staticmethod
+    def GetRunning():
         return Game.s_running
     
-    def SetRunning(self, s_running):
+    @staticmethod
+    def SetRunning(s_running):
         Game.s_running = s_running
         
     def Handle(self, p_data):
@@ -247,10 +250,10 @@ class Game(ConnectionHandler):
         # ------------------------------------------------------------------------
         #  Command not recognized, send to room
         # ------------------------------------------------------------------------
-        self.SendRoom(bold + p.GetName() + " says: " + dim + p_data, p.GetCurrentRoom())
+        Game.SendRoom(bold + p.GetName() + " says: " + dim + p_data, p.GetCurrentRoom())
         
     def Enter(self):
-        USERLOG.Log(self.m_connection.GetRemoteAddress() + " - User " + self.m_player.GetName()+ " entering Game state.")
+        USERLOG.Log(str(self.m_connection.GetRemoteAddress()) + " - User " + str(self.m_player.GetName()) + " entering Game state.")
         
         self.m_lastcommand = ""
         
@@ -476,31 +479,31 @@ class Game(ConnectionHandler):
         itm = p.GetItem(i)
         if itm.GetType() == ItemType_WEAPON:
             p.UseWeapon(i)
-            self.SendRoom(green + bold + p.GetName() + " arms a " + itm.GetName(), p.GetCurrentRoom())
+            Game.SendRoom(green + bold + p.GetName() + " arms a " + itm.GetName(), p.GetCurrentRoom())
             return True
         elif itm.GetType() == ItemType_ARMOR:
             p.UseArmor(i)
-            self.SendRoom(green + bold + p.GetName() + " puts on a " + itm.GetName(), p.GetCurrentRoom())
+            Game.SendRoom(green + bold + p.GetName() + " puts on a " + itm.GetName(), p.GetCurrentRoom())
             return True
         elif itm.GetType() == ItemType_HEALING:
             p.AddBonuses(itm.GetId())
             p.AddHitpoints(RandomInt(itm.Min(), itm.Max()))
             p.DropItem(i)
-            self.SendRoom(green + bold + p.GetName() + " uses a " + itm.GetName(), p.GetCurrentRoom())
+            Game.SendRoom(green + bold + p.GetName() + " uses a " + itm.GetName(), p.GetCurrentRoom())
             return True
-    return False
+        return False
 
     def RemoveItem(self, p_item):
         p = self.m_player
         p_item = p_item.lower()
         
         if p_item == "weapon" and p.GetWeapon() != None:
-            self.SendRoom(green + bold + p.GetName() + " puts away a " + p.GetWeapon().GetName(), p.GetCurrentRoom())
+            Game.SendRoom(green + bold + p.GetName() + " puts away a " + p.GetWeapon().GetName(), p.GetCurrentRoom())
             p.RemoveWeapon()
             return True
         
         if p_item == "armor" and p.GetArmor() != None:
-            self.SendRoom(green + bold + p.GetName() + " takes off a " + p.GetArmor().GetName(), p.GetCurrentRoom())
+            Game.SendRoom(green + bold + p.GetName() + " takes off a " + p.GetArmor().GetName(), p.GetCurrentRoom())
             p.RemoveArmor()
             return True
         
@@ -564,7 +567,8 @@ class Game(ConnectionHandler):
 
         return desc
     
-    def SendRoom(self, p_text, p_room):
+    @staticmethod
+    def SendRoom(p_text, p_room):
         for i in p_room.GetPlayers():
             i.SendString(p_text)
             
@@ -574,17 +578,17 @@ class Game(ConnectionHandler):
         previous = p.GetCurrentRoom()
         
         if next == None:
-            self.SendRoom(red + p.GetName() + " bumps into the wall to the " + \
+            Game.SendRoom(red + p.GetName() + " bumps into the wall to the " + \
                   DIRECTIONSTRINGS[p_direction] + "!!!", \
                   p.GetCurrentRoom())
             return
         
         previous.RemovePlayer(p.GetId())
         
-        self.SendRoom(green + p.GetName() + " leaves to the " + \
+        Game.SendRoom(green + p.GetName() + " leaves to the " + \
               DIRECTIONSTRINGS[p_direction] + ".", \
               previous)
-        self.SendRoom(green + p.GetName() + " enters from the " + \
+        Game.SendRoom(green + p.GetName() + " enters from the " + \
               DIRECTIONSTRINGS[OppositeDirection(p_direction)] + ".", \
               next)
         p.SendString(green + "You walk " + DIRECTIONSTRINGS[p_direction] + ".")
@@ -607,7 +611,7 @@ class Game(ConnectionHandler):
             else:
                 p.SetMoney(p.GetMoney() + m)
                 p.GetCurrentRoom().SetMoney(p.GetCurrentRoom().GetMoney() - m)
-                self.SendRoom( cyan + bold + p.GetName() + " picks up $" + m + ".", p.GetCurrentRoom())
+                Game.SendRoom( cyan + bold + p.GetName() + " picks up $" + m + ".", p.GetCurrentRoom())
             return
         
         i = p.GetCurrentRoom().FindItem(p_item)
@@ -620,7 +624,7 @@ class Game(ConnectionHandler):
             return
         
         p.GetCurrentRoom().RemoveItem(i)
-        self.SendRoom(cyan + bold + p.GetName() + " picks up " + i.GetName() + ".", p.GetCurrentRoom())
+        Game.SendRoom(cyan + bold + p.GetName() + " picks up " + i.GetName() + ".", p.GetCurrentRoom())
         
     def DropItem(self, p_item):
         p = self.m_player
@@ -636,14 +640,14 @@ class Game(ConnectionHandler):
             else:
                 p.SetMoney(p.GetMoney() - m)
                 p.GetCurrentRoom().SetMoney(p.GetCurrentRoom().GetMoney() + m)
-                self.SendRoom(cyan + bold + p.GetName() + " drops $" + m + ".", p.GetCurrentRoom())
+                Game.SendRoom(cyan + bold + p.GetName() + " drops $" + m + ".", p.GetCurrentRoom())
             return
         
         i = p.GetItemIndex(p_item)
         if i == -1:
             p.SendString(red + bold + "You don't have that!")
             return
-        self.SendRoom(cyan + bold + p.GetName() + " drops " + \
+        Game.SendRoom(cyan + bold + p.GetName() + " drops " + \
                 p.GetItem(i).GetName() + ".", p.GetCurrentRoom())
         p.GetCurrentRoom().AddItem(p.GetItem(i))
         p.DropItem(i)
@@ -689,7 +693,7 @@ class Game(ConnectionHandler):
             return
         
         p.SetMoney(p.GetMoney() - i.Price())
-        self.SendRoom(cyan + bold + p.GetName() + " buys a " + i.GetName(), p.GetCurrentRoom())
+        Game.SendRoom(cyan + bold + p.GetName() + " buys a " + i.GetName(), p.GetCurrentRoom())
         
     def Sell(self, p_item):
         p = self.m_player
@@ -707,15 +711,16 @@ class Game(ConnectionHandler):
         
         p.DropItem(index)
         p.SetMoney(p.GetMoney() + i.Price())
-        self.SendRoom(cyan + bold + p.GetName() + " sells a " + i.GetName(), p.GetCurrentRoom())
-        
-    def EnemyAttack(self, p_enemy):
+        Game.SendRoom(cyan + bold + p.GetName() + " sells a " + i.GetName(), p.GetCurrentRoom())
+    
+    @staticmethod    
+    def EnemyAttack(p_enemy):
         e = p_enemy
         r = e.GetCurrentRoom()
         
         p = r.GetPlayers()[RandomInt(0, len(r.GetPlayers()) - 1)]
         
-        now = self.GetTimer().GetMS()
+        now = Game.GetTimer().GetMS()
         damage = 0
         if e.GetWeapon() == None:
             damage = RandomInt(1, 3)
@@ -725,7 +730,7 @@ class Game(ConnectionHandler):
             e.SetNextAttackTime(now + e.GetWeapon().Speed()*1000)
         
         if RandomInt(0, 99) >= e.Accuracy() - p.GetAttr(Attribute_DODGING):
-            self.SendRoom(white + e.GetName() + " swings at " + p.GetName() + \
+            Game.SendRoom(white + e.GetName() + " swings at " + p.GetName() + \
                         " but misses!", e.GetCurrentRoom())
             return
         
@@ -734,21 +739,22 @@ class Game(ConnectionHandler):
         if damage < 1:
             damage = 1
         p.AddHitpoints(-damage)
-        self.SendRoom(red + e.GetName() + " hits " + p.GetName() + " for " + damage + " damage!", e.GetCurrentRoom())
+        Game.SendRoom(red + e.GetName() + " hits " + p.GetName() + " for " + damage + " damage!", e.GetCurrentRoom())
         
         if p.HitPoints() <= 0:
-            self.PlayerKilled(p.GetId())
+            Game.PlayerKilled(p.GetId())
     
+    @staticmethod
     def PlayerKilled(self, p_player):
         p = p_player
-        self.SendRoom(red + bold + p.GetName() + " has died!", p.GetCurrentRoom())
+        Game.SendRoom(red + bold + p.GetName() + " has died!", p.GetCurrentRoom())
         
         # drop the money
         m = p.GetMoney() / 10
         if m > 0:
             p.GetCurrentRoom().SetMoney(p.GetCurrentRoom().GetMoney() + m)
             p.SetMoney(p.GetMoney() - m)
-            self.SendRoom(cyan + "$" + m + " drops to the ground.", p.GetCurrentRoom())
+            Game.SendRoom(cyan + "$" + m + " drops to the ground.", p.GetCurrentRoom())
             
         # drop an item
         if len(p.GetItems()) > 0:
@@ -759,7 +765,7 @@ class Game(ConnectionHandler):
             p.GetCurrentRoom().AddItem(i)
             p.DropItem(index)
             
-            self.SendRoom(cyan + i.GetName() + " drops to the ground.", p.GetCurrentRoom())
+            Game.SendRoom(cyan + i.GetName() + " drops to the ground.", p.GetCurrentRoom())
             
         # subtract 10% experience
         exp = p.GetExperience() / 10
@@ -774,7 +780,7 @@ class Game(ConnectionHandler):
         p.SetHitpoints(int(p.GetAttr(Attribute_MAXHITPOINTS) * 0.7))
         p.SendString(white + bold + "You have died, but have been ressurected in " + p.GetCurrentRoom().GetName())
         p.SendString(red + bold + "You have lost " + exp + " experience!")
-        self.SendRoom(white + bold + p.GetName() + " appears out of nowhere!!" , p.GetCurrentRoom())
+        Game.SendRoom(white + bold + p.GetName() + " appears out of nowhere!!" , p.GetCurrentRoom())
         
     def PlayerAttack(self, p_enemy):
         p = self.m_player
@@ -799,7 +805,7 @@ class Game(ConnectionHandler):
             p.SetNextAttackTime(now + p.Weapon().Speed() * 1000)
         
         if RandomInt(0, 99) >= p.GetAttr(Attribute_ACCURACY) - e.Dodging():
-            self.SendRoom(white + p.GetName() + " swings at " + e.GetName() + \
+            Game.SendRoom(white + p.GetName() + " swings at " + e.GetName() + \
                   " but misses!", p.GetCurrentRoom())
             return
         
@@ -810,20 +816,20 @@ class Game(ConnectionHandler):
             damage = 1
         
         e.SetHitPoints(e.GetHitPoints() - damage)
-        self.SendRoom(red + p.GetName() + " hits " + e.GetName() + " for " + damage + " damage!", p.GetCurrentRoom())
+        Game.SendRoom(red + p.GetName() + " hits " + e.GetName() + " for " + damage + " damage!", p.GetCurrentRoom())
         
         if e.GetHitPoints() <= 0:
             self.EnemyKilled(e.GetId(), self.m_player)
             
     def EnemyKilled(self, p_enemy, p_player):
         e = p_enemy
-        self.SendRoom(cyan + bold + e.GetName() + " has died!", e.GetCurrentRoom())
+        Game.SendRoom(cyan + bold + e.GetName() + " has died!", e.GetCurrentRoom())
         
         # drop the money
         m = RandomInt(e.MoneyMin(), e.MoneyMax())
         if m > 0:
             e.GetCurrentRoom().SetMoney(e.GetCurrentRoom().GetMoney() + m)
-            self.SendRoom(cyan + "$" + m + " drops to the ground.", e.GetCurrentRoom())
+            Game.SendRoom(cyan + "$" + m + " drops to the ground.", e.GetCurrentRoom())
             
         # drop all the items
         list = e.LootList()
@@ -831,7 +837,7 @@ class Game(ConnectionHandler):
             if RandomInt(0, 99) < list[i]:
                 item = itemDatabase.GetValue(i)
                 e.GetCurrentRoom().AddItem(item)
-                self.SendRoom(cyan + item.GetName() + " drops to the ground.", e.GetCurrentRoom())
+                Game.SendRoom(cyan + item.GetName() + " drops to the ground.", e.GetCurrentRoom())
                 
         # add experience to the player who killed it
         p = p_player

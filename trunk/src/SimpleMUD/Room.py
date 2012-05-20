@@ -156,7 +156,7 @@ class Room(Entity):
         line = file.readline()
         self.m_spawnwhich = BasicLibString.ParseWord(line, 1)
         line = file.readline()
-        self.m_maxenemies = BasicLibString.ParseWord(line, 1)
+        self.m_maxenemies = int(BasicLibString.ParseWord(line, 1))
         #print(self.m_maxenemies)
         
     def LoadData(self, file):

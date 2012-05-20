@@ -5,7 +5,7 @@ Created on 2012-5-5
 '''
 from SocketLib.SocketSet import MAX, SocketSet
 from SocketLib.Connection import Connection
-from SimpleChat.SCLogon import SCLogon
+from SimpleMUD.Logon import Logon
 
 class ConnectionManager:
     def __init__(self, p_maxdatarate, p_sendtimeout, p_maxbuffered):
@@ -26,13 +26,13 @@ class ConnectionManager:
         if self.AvailableConnections() == 0:
             # tell the default protocol handler that there is no more room
             # for the connection within this manager.
-            SCLogon.NoRoom(conn)
+            Logon.NoRoom(conn)
             conn.CloseSocket()
         else:
             self.m_connections.append(conn)
             conn.SetBlocking(False)
             self.m_set.AddSocket(conn)
-            conn.AddHandler(SCLogon(conn))
+            conn.AddHandler(Logon(conn))
             
     def Close(self, conn):
         self.m_set.RemoveSocket(conn)

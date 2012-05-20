@@ -23,12 +23,30 @@ def TimeStamp():
 def DateStamp():
     return time.strftime("%Y.%m.%d")
 
+def Seconds(t):
+    return t * 1000
+
+def Minutes(t):
+    return t * 60 * 1000
+
+def Hours(t):
+    return t * 60 * 60 * 1000
+
+def Days(t):
+    return t * 24 * 60 * 60 * 1000
+
+def Weeks(t):
+    return t * 7 * 24 * 60 * 60 * 1000
+
+def Years(t):
+    return t * 365 * 24 * 60 * 60 * 1000
+
 class Timer:
     def __init__(self):
         self.m_starttime = 0
         self.m_inittime = 0
         
-    def Reset(self, p_timepassed):
+    def Reset(self, p_timepassed = 0):
         self.m_starttime = p_timepassed
         self.m_inittime = GetTimeMS()
 

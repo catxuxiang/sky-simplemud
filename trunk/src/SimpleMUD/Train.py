@@ -47,8 +47,8 @@ class Train(ConnectionHandler):
         
         if p.GetNewbie():
             p.SendString(magenta + bold + \
-            "Welcome to SimpleMUD, " + p.GetName() + "!\r\n" + 
-            "You must train your character with your desired stats,\r\n" +
+            "Welcome to SimpleMUD, " + p.GetName() + "!\r\n" + \
+            "You must train your character with your desired stats,\r\n" + \
             "before you enter the realm.\r\n\r\n")
             p.SetNewbie(False)
             
@@ -63,7 +63,7 @@ class Train(ConnectionHandler):
         p.SendString(white + bold + \
         "--------------------------------- Your Stats ----------------------------------\r\n" + \
         "Player:           " + p.GetName() + "\r\n" + \
-        "Level:            " + p.Level() ) + "\r\n" + \
+        "Level:            " + p.Level() + "\r\n" + \
         "Stat Points Left: " + p.StatPoints() + "\r\n" + \
         "1) Strength:      " + p.GetAttr(Attribute_STRENGTH) + "\r\n" + \
         "2) Health:        " + p.GetAttr(Attribute_HEALTH) + "\r\n" + \

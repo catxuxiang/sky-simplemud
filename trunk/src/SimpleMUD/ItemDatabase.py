@@ -18,8 +18,8 @@ class ItemDatabase(EntityDatabase):
                 item = Item()
                 item.SetId(id1)
                 item.FromLines(file)
-                self.m_map.append(item)
-                USERLOG.Log("Loaded Item: " + self.m_map[len(self.m_map) - 1].GetName())
+                self.m_map[id1] = item
+                USERLOG.Log("Loaded Item: " + item.GetName())
             line = file.readline() 
         file.close()  
         return True

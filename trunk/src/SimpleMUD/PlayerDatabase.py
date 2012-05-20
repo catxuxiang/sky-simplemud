@@ -39,7 +39,6 @@ class PlayerDatabase(EntityDatabase):
     
     def LoadPlayer(self, p_name):
         p_name = self.PlayerFileName(p_name)
-        
         file = open(p_name)
         line = file.readline()
         id = BasicLibString.ParseWord(line, 1)
@@ -56,13 +55,14 @@ class PlayerDatabase(EntityDatabase):
         line = file.readline()
         while line:
             self.LoadPlayer(line.strip())
+            line = file.readline()
         file.close()
         return True
     
     def SavePlayer(self, p_player):
         name = self.PlayerFileName(p_player.GetName())
         file = open(name, "w")
-        string = "[ID]             " + p_player.GetId() + "\n"
+        string = "[ID]             " + str(p_player.GetId()) + "\n"
         string += p_player.ToLines()
         file.write(string)
         file.close()
