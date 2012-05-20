@@ -16,6 +16,7 @@ cm = ConnectionManager(128, 60, 65536)
 
 lm.SetConnectionManager(cm)
 lm.AddPort(5098)
+lm.AddPort(5099)
 
 
 while Game.GetRunning():

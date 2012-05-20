@@ -108,9 +108,10 @@ class GameLoop:
                 Game.SendRoom(red + bold + i.GetSpawnWhich().GetName() + " enters the room!", i.GetId())
                 
     def PerformHeal(self):
-        for i in playerDatabase.m_map:
-            if i.GetActive():
-                i.AddHitpoints(i.GetAttr(Attribute_HPREGEN))
-                i.PrintStatbar(True)
+        map1 = playerDatabase.m_map
+        for i in map1:
+            if map1[i].GetActive():
+                map1[i].AddHitpoints(map1[i].GetAttr(Attribute_HPREGEN))
+                map1[i].PrintStatbar(True)
                                    
     
