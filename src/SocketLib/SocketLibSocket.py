@@ -38,6 +38,8 @@ class DataSocket(Socket):
         self.m_connected = False
         if p_socket != None:
             self.m_connected = True
+        self.remoteAddress = ""
+        self.remotePort = ""
             
     def Connect(self, p_addr, p_port):
         if self.m_connected == True:

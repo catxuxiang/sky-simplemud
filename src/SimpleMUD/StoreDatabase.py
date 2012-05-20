@@ -18,8 +18,8 @@ class StoreDatabase(EntityDatabase):
                 store = Store()
                 store.SetId(id1)
                 store.FromLines(file)
-                self.m_map.append(store)
-                USERLOG.Log("Loaded Store: " + self.m_map[len(self.m_map) - 1].GetName())
+                self.m_map[id1] = store
+                USERLOG.Log("Loaded Store: " + store.GetName())
             line = file.readline() 
         file.close()  
         return True

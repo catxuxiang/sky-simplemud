@@ -14,7 +14,9 @@ class Item(Entity):
         self.m_min = 0
         self.m_max = 0
         self.m_speed = 0
-        self.m_attributes = AttributeSet()
+        self.m_attributes = []
+        for i in range(0, NUMATTRIBUTES):
+            self.m_attributes.append(0)          
         
     def Type(self):
         return self.m_type
@@ -48,7 +50,12 @@ class Item(Entity):
         self.m_speed = BasicLibString.ParseWord(line, 1)
         line = file.readline()
         self.m_price = BasicLibString.ParseWord(line, 1)
-        self.m_attributes.FromLines(file)
+        #self.m_attributes.FromLines(file)
+        for i in range(0, NUMATTRIBUTES):
+            line = file.readline()
+            name = BasicLibString.ParseName(BasicLibString.ParseWord(line, 0))
+            value = BasicLibString.ParseWord(line, 1)
+            self.m_attributes[int(GetAttribute(name))] = int(value)
         
     def __repr__(self):
         string  = BasicLibString.Fill16Char("[NAME]") + self.m_name + "\n"
@@ -57,7 +64,10 @@ class Item(Entity):
         string += BasicLibString.Fill16Char("[MAX]") + self.m_max + "\n"
         string += BasicLibString.Fill16Char("[SPEED]") + self.m_speed + "\n"
         string += BasicLibString.Fill16Char("[PRICE]") + self.m_price + "\n"
-        return string + str(self.m_attributes)
+        #return string + str(self.m_attributes)
+        for i in range(0, NUMATTRIBUTES):
+            string += BasicLibString.Fill16Char("[" + GetAttributeString(i) + "]") + str(self.m_attributes[i]) + "\n"
+        return string
 ''' 
 a = Item()
 file = open("example.itm")
