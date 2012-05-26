@@ -5,8 +5,11 @@ Created on 2012-4-20
 '''
 from SimpleMUD.Entity import Entity
 from SimpleMUD.Item import Item
-from SimpleMUD import Attributes
-from BasicLib import BasicLibString
+from SimpleMUD.Attributes import *
+from BasicLib.BasicLibString import RemoveWord, ParseWord
+from SimpleMUD.RoomDatabase import roomDatabase
+from SimpleMUD.EnemyDatabase import enemyTemplateDatabase
+from SimpleMUD.ItemDatabase import itemDatabase
 
 class Room(Entity):
     def GetType(self):
@@ -71,15 +74,15 @@ class Room(Entity):
     
     def __init__(self):
         Entity.__init__(self)
-        self.m_type = Attributes.RoomType_PLAINROOM
-        self.m_data = 0
+        self.m_type = RoomType_PLAINROOM
+        self.m_data = "0"
         self.m_description = "UNDEFINED"
         
         self.m_rooms = []
-        for d in range(0, Attributes.NUMDIRECTIONS):
-            self.m_rooms.append(0)
+        for _ in range(0, NUMDIRECTIONS):
+            self.m_rooms.append(None)
         
-        self.m_spawnwhich = 0
+        self.m_spawnwhich = None
         self.m_maxenemies = 0
         self.m_money = 0
         
@@ -92,17 +95,22 @@ class Room(Entity):
         self.m_players.append(p_player)
         
     def RemovePlayer(self, p_player):
-        for i in self.m_players:
-            if i == p_player:
-                del i
+        i = 0
+        index = -1
+        for p in self.m_players:
+            if p == p_player:
+                index = i
+            i += 1
+        if index != -1:
+            del self.m_players[index]
                 
-    def FindItem(self, p_item):
+    def FindItem(self, p_name):
         for i in self.m_items:
-            if i.MatchFull(p_item):
+            if i.MatchFull(p_name):
                 return i
             
         for i in self.m_items:
-            if i.Match(p_item):
+            if i.Match(p_name):
                 return i
             
         return None
@@ -113,17 +121,22 @@ class Room(Entity):
         self.m_items.append(p_item)
         
     def RemoveItem(self, p_item):
-        for i in self.m_items:
-            if i.GetId() == p_item.GetId():
-                del i
+        i = 0
+        index = -1
+        for item in self.m_items:
+            if item.GetId() == p_item.GetId():
+                index = i
+            i += 1
+        if index != -1:
+            del self.m_items[index]
     
-    def FindEnemy(self, p_enemy):
+    def FindEnemy(self, p_name):
         for i in self.m_enemies:
-            if i.MatchFull(p_enemy):
+            if i.MatchFull(p_name):
                 return i
             
         for i in self.m_enemies:
-            if i.Match(p_enemy):
+            if i.Match(p_name):
                 return i
             
         return None        
@@ -132,46 +145,48 @@ class Room(Entity):
         self.m_enemies.append(p_enemy)
         
     def RemoveEnemy(self, p_enemy):
-        for i in self.m_enemies:
-            if i.GetId() == p_enemy.GetId():
-                del i    
+        i = 0
+        index = -1        
+        for e in self.m_enemies:
+            if e.GetId() == p_enemy.GetId():
+                index = i
+            i += 1
+        if index != -1:
+            del self.m_enemies[index]
                 
     def LoadTemplate(self, file):
         line = file.readline()
-        name = BasicLibString.RemoveWord(line, 0)
+        name = RemoveWord(line, 0)
         self.m_name = name.strip()
         line = file.readline()
-        description = BasicLibString.RemoveWord(line, 0)
+        description = RemoveWord(line, 0)
         self.m_description = description.strip()        
         line = file.readline()
-        self.m_type = Attributes.GetRoomType(BasicLibString.ParseWord(line, 1))
+        self.m_type = GetRoomType(ParseWord(line, 1))
         line = file.readline()
-        self.m_data = BasicLibString.ParseWord(line, 1)
+        self.m_data = ParseWord(line, 1)
         
-        for d in range(0, Attributes.NUMDIRECTIONS):
+        for d in range(0, NUMDIRECTIONS):
             line = file.readline()
-            self.m_rooms[d] = BasicLibString.ParseWord(line, 1)
+            self.m_rooms[d] = roomDatabase.GetValue(ParseWord(line, 1))
             #print(self.m_rooms[d])
         
         line = file.readline()
-        self.m_spawnwhich = BasicLibString.ParseWord(line, 1)
+        self.m_spawnwhich = enemyTemplateDatabase.GetValue(ParseWord(line, 1))
         line = file.readline()
-        self.m_maxenemies = int(BasicLibString.ParseWord(line, 1))
+        self.m_maxenemies = int(ParseWord(line, 1))
         #print(self.m_maxenemies)
         
     def LoadData(self, file):
         self.m_items = []
         line = file.readline()
-        itemids = BasicLibString.RemoveWord(line, 0).strip()
+        itemids = RemoveWord(line, 0).strip()
         for i in itemids.split(' '):
             if i != "0":
-                item = Item()
-                item.SetId(i)
-                #print(i)
-                self.m_items.append(item)
+                self.m_items.append(itemDatabase.GetValue(i))
                 
         line = file.readline()
-        self.m_money = BasicLibString.ParseWord(line, 1)
+        self.m_money = int(ParseWord(line, 1))
         #print(self.m_money)
         
     def SaveData(self):
@@ -179,7 +194,7 @@ class Room(Entity):
         for i in self.m_items:
             string += i.GetId() + " "
         string += "0\n"
-        string += "[MONEY] " + self.m_money + "\n"
+        string += "[MONEY] " + str(self.m_money) + "\n"
         return string
 
 

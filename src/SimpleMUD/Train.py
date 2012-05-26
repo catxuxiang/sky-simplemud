@@ -27,7 +27,7 @@ class Train(ConnectionHandler):
         
         if p_data == "quit":
             # save the player to disk
-            playerDatabase.SavePlayer(p.GetId())
+            playerDatabase.SavePlayer(p)
             
             # go back to the previous handler
             p.GetConn().RemoveHandler()
@@ -36,7 +36,7 @@ class Train(ConnectionHandler):
         n = p_data[0]
         if n >= '1' and n <= '3' and p.GetStatPoints() > 0:
             p.SetStatPoints(p.GetStatPoints() - 1)
-            p.AddToBaseAttr( n - '1', 1 )
+            p.AddToBaseAttr(n - '1', 1)
             
         self.PrintStats(True)
         
@@ -63,11 +63,11 @@ class Train(ConnectionHandler):
         p.SendString(white + bold + \
         "--------------------------------- Your Stats ----------------------------------\r\n" + \
         "Player:           " + p.GetName() + "\r\n" + \
-        "Level:            " + p.Level() + "\r\n" + \
-        "Stat Points Left: " + p.StatPoints() + "\r\n" + \
-        "1) Strength:      " + p.GetAttr(Attribute_STRENGTH) + "\r\n" + \
-        "2) Health:        " + p.GetAttr(Attribute_HEALTH) + "\r\n" + \
-        "3) Agility:       " + p.GetAttr(Attribute_AGILITY) + "\r\n" + \
+        "Level:            " + str(p.GetLevel()) + "\r\n" + \
+        "Stat Points Left: " + str(p.GetStatPoints()) + "\r\n" + \
+        "1) Strength:      " + str(p.GetAttr(Attribute_STRENGTH)) + "\r\n" + \
+        "2) Health:        " + str(p.GetAttr(Attribute_HEALTH)) + "\r\n" + \
+        "3) Agility:       " + str(p.GetAttr(Attribute_AGILITY)) + "\r\n" + \
         bold + \
         "-------------------------------------------------------------------------------\r\n" + \
         "Enter 1, 2, or 3 to add a stat point, or \"quit\" to enter the realm: ")

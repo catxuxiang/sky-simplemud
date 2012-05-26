@@ -3,7 +3,7 @@ Created on 2012-4-15
 
 @author: Sky
 '''
-from BasicLib import BasicLibString
+#from BasicLib import BasicLibString
 
 Attribute_STRENGTH = 0
 Attribute_HEALTH = 1

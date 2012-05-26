@@ -10,7 +10,7 @@ from BasicLib.BasicLibLogger import USERLOG
 
 class StoreDatabase(EntityDatabase):
     def Load(self):
-        file = open("..\stores\stores.str")
+        file = open("../stores/stores.str")
         line = file.readline()
         while line:
             if line.strip() != "":

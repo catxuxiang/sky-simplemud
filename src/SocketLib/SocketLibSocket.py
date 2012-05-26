@@ -14,7 +14,7 @@ class Socket():
     def __init__(self, p_socket):
         self.m_sock = p_socket
         if self.m_sock != None:
-            self.m_sock.setblocking(True)
+            self.m_sock.setblocking(False)
             self.localAddress, self.localPort = self.m_sock.getsockname()
         
     def GetSock(self):

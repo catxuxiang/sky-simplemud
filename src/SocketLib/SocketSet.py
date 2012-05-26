@@ -17,23 +17,21 @@ class SocketSet:
         self.m_set.append(p_sock.GetSock())
         
     def RemoveSocket(self, p_sock):
-        index = 0
-        i = -1
+        i = 0
+        index = -1
         for sock in self.m_set:
             if sock == p_sock.GetSock():
-                i = index
-            index += 1
-        if i != -1:
-            del self.m_set[i]
+                index = i
+            i += 1
+        if index != -1:
+            del self.m_set[index]
     
     #p_time unit:second        
     def Poll(self, p_time = 0):
         self.m_activityset = []
         for i in self.m_set:
             self.m_activityset.append(i)
-        #print("before:" + str(len(self.m_activityset)))
-        infds,outfds,errfds = select.select(self.m_activityset, [], [], p_time)
-        #print("after:" + str(len(self.m_activityset)))
+        infds,_,_ = select.select(self.m_activityset, [], [], p_time)
         return len(infds)
     
     def HasActivity(self, p_sock):

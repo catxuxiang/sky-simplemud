@@ -15,9 +15,11 @@ def SearchAndReplace(string, old, new):
 def TrimWhitespace(string):
     return str(string).strip()
 
+'''
 def Fill16Char(string):
     i = len(string.strip())
     return string.strip() + " " * (16 - i)
+'''
 
 def ParseWord(string, index):
     string = str(string).strip()

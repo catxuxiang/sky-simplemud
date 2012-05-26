@@ -9,6 +9,8 @@ from SimpleMUD.Item import Item
 from BasicLib.BasicLibLogger import ERRORLOG
 from SocketLib.Telnet import *
 from SimpleMUD.RoomDatabase import roomDatabase
+from BasicLib.BasicLibString import ParseWord, RemoveWord, ParseName
+from SimpleMUD.ItemDatabase import itemDatabase
 
 PLAYERITEMS = 16
 
@@ -21,41 +23,40 @@ class Player(Entity):
         self.m_connection = None
         self.m_loggedin = False
         self.m_active = False
-        self.m_newbie = True
+        self.m_newbie = False
         
         self.m_experience = 0
         self.m_level = 1
-        self.m_room = 1
+        self.m_room = roomDatabase.GetValue("1")
         self.m_money = 0
         
         self.m_nextattacktime = 0
         
         self.m_attributes = []
-        for i in range(0, NUMATTRIBUTES):
+        for _ in range(0, NUMATTRIBUTES):
             self.m_attributes.append(0)          
         self.m_baseattributes = []
-        for i in range(0, NUMATTRIBUTES):
+        for _ in range(0, NUMATTRIBUTES):
             self.m_baseattributes.append(0)        
         self.m_baseattributes[Attribute_STRENGTH] = 1
         self.m_baseattributes[Attribute_HEALTH] = 1
         self.m_baseattributes[Attribute_AGILITY] = 1
         
-        self.m_items = 0
+        self.m_items = []
         self.m_weapon = -1
         self.m_armor = -1
         
         self.m_statpoints = 18
         
-        self.m_hitpoints = 0
         self.RecalculateStats()
         self.m_hitpoints = int(self.GetAttr(Attribute_MAXHITPOINTS))
         
         self.m_inventory = []
              
-    def Level(self):
+    def GetLevel(self):
         return self.m_level
     
-    def HitPoints(self):
+    def GetHitPoints(self):
         return int(self.m_hitpoints)
     
     def GetStatPoints(self):
@@ -71,10 +72,10 @@ class Player(Entity):
         self.m_experience = m_experience
         
     def GetCurrentRoom(self):
-        return roomDatabase.GetValue(self.m_room)
+        return self.m_room
     
     def SetCurrentRoom(self, m_room):
-        self.m_room = m_room.GetId()
+        self.m_room = m_room
         
     def GetMoney(self):
         return self.m_money
@@ -153,13 +154,13 @@ class Player(Entity):
         if self.m_weapon == -1:
             return None
         else:
-            return self.m_inventory[self.m_weapon] #return item id
+            return self.m_inventory[self.m_weapon]
         
     def GetArmor(self):
         if self.m_armor == -1:
             return None
         else:
-            return self.m_inventory[self.m_armor] #return item id
+            return self.m_inventory[self.m_armor]
         
     def NeedForNextLevel(self):
         return self.NeedForLevel(self.m_level + 1) - self.m_experience
@@ -176,30 +177,27 @@ class Player(Entity):
         
     def RecalculateStats(self):
         self.m_attributes[Attribute_MAXHITPOINTS] = 10 + (int(self.m_level * (self.GetAttr(Attribute_HEALTH) / 1.5)))
-        self.m_attributes[Attribute_HPREGEN] = self.GetAttr(Attribute_HEALTH) / 5 + self.m_level
+        self.m_attributes[Attribute_HPREGEN] = int(self.GetAttr(Attribute_HEALTH) / 5 + self.m_level)
         
         self.m_attributes[Attribute_ACCURACY] = self.GetAttr(Attribute_AGILITY) * 3
         self.m_attributes[Attribute_DODGING] = self.GetAttr(Attribute_AGILITY) * 3
-        self.m_attributes[Attribute_DAMAGEABSORB] = self.GetAttr(Attribute_STRENGTH) / 5
-        self.m_attributes[Attribute_STRIKEDAMAGE] = self.GetAttr(Attribute_STRENGTH) / 5
+        self.m_attributes[Attribute_DAMAGEABSORB] = int(self.GetAttr(Attribute_STRENGTH) / 5)
+        self.m_attributes[Attribute_STRIKEDAMAGE] = int(self.GetAttr(Attribute_STRENGTH) / 5)
         
-        if self.m_hitpoints > int(self.GetAttr(Attribute_MAXHITPOINTS)):
-            self.m_hitpoints = int(self.GetAttr(Attribute_MAXHITPOINTS))
+        if self.m_hitpoints > self.GetAttr(Attribute_MAXHITPOINTS):
+            self.m_hitpoints = self.GetAttr(Attribute_MAXHITPOINTS)
             
-        if self.GetWeapon() != 0:
+        if self.GetWeapon() != None:
             self.AddDynamicBonuses(self.GetWeapon())
-        if self.GetArmor() != 0:
+        if self.GetArmor() != None:
             self.AddDynamicBonuses(self.GetArmor())
             
     def AddDynamicBonuses(self, p_item):
-        if p_item == 0:
+        if p_item == None:
             return
         
-        i = Item()
-        i.SetId(p_item) #perhaps error
-        
         for x in range(0, NUMATTRIBUTES):
-            self.m_attributes[x] += i.GetAttr( x )
+            self.m_attributes[x] += p_item.GetAttr(x)
             
     def SetBaseAttr(self, p_attr, p_val):
         self.m_baseattributes[p_attr] = p_val
@@ -213,12 +211,12 @@ class Player(Entity):
         self.SetHitpoints(self.m_hitpoints + p_hitpoints)
         
     def SetHitpoints(self, p_hitpoints):
-        self.m_hitpoints = int(p_hitpoints)
+        self.m_hitpoints = p_hitpoints
         
         if self.m_hitpoints < 0:
             self.m_hitpoints = 0
         if self.m_hitpoints > self.GetAttr(Attribute_MAXHITPOINTS):
-            self.m_hitpoints = int(self.GetAttr(Attribute_MAXHITPOINTS))
+            self.m_hitpoints = self.GetAttr(Attribute_MAXHITPOINTS)
             
     def PickUpItem(self, p_item):
         if len(self.m_items) < self.GetMaxItems():
@@ -229,7 +227,7 @@ class Player(Entity):
             return False
         
     def DropItem(self, p_index):
-        if self.m_inventory[p_index] != 0:
+        if self.m_inventory[p_index] != None:
             #remove the weapon or armor if needed
             if self.m_weapon == p_index:
                 self.RemoveWeapon()
@@ -242,14 +240,11 @@ class Player(Entity):
             return False
         
     def AddBonuses(self, p_item):
-        if p_item == 0:
+        if p_item == None:
             return
         
-        itm = Item()
-        itm.SetId(p_item) #perhaps error
-        
         for x in range(0, NUMATTRIBUTES):
-            self.m_baseattributes[x] += itm.GetAttr(x)
+            self.m_baseattributes[x] += p_item.GetAttr(x)
         self.RecalculateStats()
         
     def RemoveWeapon(self):
@@ -272,12 +267,12 @@ class Player(Entity):
         
     def GetItemIndex(self, p_name):
         for i in range(0, len(self.m_inventory)):
-            if i.MatchFull(p_name):
-                return i.GetId()
+            if self.m_inventory[i].MatchFull(p_name):
+                return i
             
         for i in range(0, len(self.m_inventory)):
-            if i.Match(p_name):
-                return i.GetId()
+            if self.m_inventory[i].Match(p_name):
+                return i
             
         return -1
             
@@ -292,12 +287,14 @@ class Player(Entity):
             self.PrintStatbar()
             
     def PrintStatbar(self, p_update = False):
+        # if this is a statusbar update and the user is currently typing something,
+        # then do nothing.        
         if p_update and self.GetConn().Protocol().Buffered() > 0:
             return
         
         statbar = white + bold + "["
         
-        ratio = 100 * self.HitPoints() / self.GetAttr(Attribute_MAXHITPOINTS)
+        ratio = 100 * self.GetHitPoints() / self.GetAttr(Attribute_MAXHITPOINTS)
 
         #color code your hitpoints so that they are red if low,
         #yellow if medium, and green if high.
@@ -308,25 +305,25 @@ class Player(Entity):
         else:
             statbar += green
             
-        statbar += str(self.HitPoints()) + white + "/" + str(self.GetAttr(Attribute_MAXHITPOINTS)) + "] "
+        statbar += str(self.GetHitPoints()) + white + "/" + str(self.GetAttr(Attribute_MAXHITPOINTS)) + "] "
         self.GetConn().Protocol().SendString(self.GetConn(), clearline + "\r" + statbar + reset)
         
     def ToLines(self):
         string = ""
-        string += "[NAME]           " + str(self.m_name) + "\n"
-        string += "[PASS]           " + str(self.m_pass) + "\n"
-        string += "[RANK]           " + str(GetRankString(self.m_rank)) + "\n"
+        string += "[NAME]           " + self.m_name + "\n"
+        string += "[PASS]           " + self.m_pass + "\n"
+        string += "[RANK]           " + GetRankString(self.m_rank) + "\n"
         string += "[STATPOINTS]     " + str(self.m_statpoints) + "\n"
         string += "[EXPERIENCE]     " + str(self.m_experience) + "\n"
         string += "[LEVEL]          " + str(self.m_level) + "\n"
-        string += "[ROOM]           " + str(self.m_room) + "\n"
+        string += "[ROOM]           " + self.m_room.GetId() + "\n"
         string += "[MONEY]          " + str(self.m_money) + "\n"
         string += "[HITPOINTS]      " + str(self.m_hitpoints) + "\n"
         string += "[NEXTATTACKTIME] " + str(self.m_nextattacktime) + "\n"
         
         #string += self.m_baseattributes.ToLines()
         for i in range(0, NUMATTRIBUTES):
-            string += BasicLibString.Fill16Char("[" + GetAttributeString(i) + "]") + str(self.m_baseattributes[i]) + "\n"
+            string += "[" + GetAttributeString(i) + "] " + str(self.m_baseattributes[i]) + "\n"
         
         string += "[INVENTORY]      "
         
@@ -341,47 +338,46 @@ class Player(Entity):
     
     def FromLines(self, file):
         line = file.readline()
-        name = BasicLibString.RemoveWord(line, 0)
+        name = RemoveWord(line, 0)
         self.m_name = name.strip()
         line = file.readline()
-        self.m_pass = BasicLibString.ParseWord(line, 1)        
+        self.m_pass = ParseWord(line, 1)        
         line = file.readline()
-        self.m_rank = GetRank(BasicLibString.ParseWord(line, 1))
+        self.m_rank = GetRank(ParseWord(line, 1))
         line = file.readline()
-        self.m_statpoints = BasicLibString.ParseWord(line, 1) 
+        self.m_statpoints = int(ParseWord(line, 1)) 
         line = file.readline()
-        self.m_experience = BasicLibString.ParseWord(line, 1) 
+        self.m_experience = int(ParseWord(line, 1)) 
         line = file.readline()
-        self.m_level = int(BasicLibString.ParseWord(line, 1)) 
+        self.m_level = int(ParseWord(line, 1)) 
         line = file.readline()
-        self.m_room = BasicLibString.ParseWord(line, 1) 
+        self.m_room = roomDatabase.GetValue(ParseWord(line, 1))
         line = file.readline()
-        self.m_money = BasicLibString.ParseWord(line, 1) 
+        self.m_money = int(ParseWord(line, 1)) 
         line = file.readline()
-        self.m_hitpoints = int(BasicLibString.ParseWord(line, 1)) 
+        self.m_hitpoints = int(ParseWord(line, 1)) 
         line = file.readline()
-        self.m_nextattacktime = BasicLibString.ParseWord(line, 1) 
+        self.m_nextattacktime = int(ParseWord(line, 1)) 
         
         #self.m_baseattributes.FromLines(file)
         for i in range(0, NUMATTRIBUTES):
             line = file.readline()
-            name = BasicLibString.ParseName(BasicLibString.ParseWord(line, 0))
-            value = BasicLibString.ParseWord(line, 1)
+            name = ParseName(ParseWord(line, 0))
+            value = ParseWord(line, 1)
             self.m_baseattributes[int(GetAttribute(name))] = int(value)        
         
         line = file.readline()
-        items = BasicLibString.RemoveWord(line, 0).strip().split(" ")
+        items = RemoveWord(line, 0).strip().split(" ")
         self.m_items = []
         for i in items:
             if i != 0:
-                item = Item()
-                item.SetId(i)
+                item = itemDatabase.GetValue(i)
                 self.m_items.append(item)
                 
         line = file.readline()
-        self.m_weapon = int(BasicLibString.ParseWord(line, 1))    
+        self.m_weapon = int(ParseWord(line, 1))    
         line = file.readline()
-        self.m_armor = int(BasicLibString.ParseWord(line, 1))  
+        self.m_armor = int(ParseWord(line, 1))  
                 
         self.RecalculateStats()
 
