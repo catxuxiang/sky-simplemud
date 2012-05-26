@@ -22,7 +22,9 @@ HEALTIME = Minutes(1)
 
 class GameLoop:
     def __init__(self):
+        #self.Init()
         self.LoadDatabases()
+        self.AddRelation()
         
     def __del__(self):
         self.SaveDatabases()
@@ -77,16 +79,47 @@ class GameLoop:
         if Game.GetTimer().GetMS() >= self.m_savedatabases:
             self.SaveDatabases()
             self.m_savedatabases += DBSAVETIME
-            
+
     def LoadDatabases(self):
         self.Load()
         itemDatabase.Load()
         playerDatabase.Load()
+        
         roomDatabase.LoadTemplates()
         roomDatabase.LoadData()
         storeDatabase.Load()
         enemyTemplateDatabase.Load()
         enemyDatabase.Load()
+    
+    def AddRelation(self):
+        for player in playerDatabase.m_map.values():
+            player.m_room = roomDatabase.GetValue(player.m_room)
+            
+            for i in range(0, len(player.m_items)):
+                player.m_items[i] = itemDatabase.GetValue(player.m_items[i])
+            
+            
+        for room in roomDatabase.m_vector:
+            for d in range(0, NUMDIRECTIONS):
+                room.m_rooms[d] = roomDatabase.GetValue(room.m_rooms[d])
+                
+            for i in range(0, len(room.m_items)):
+                room.m_items[i] = itemDatabase.GetValue(room.m_items[i])
+                
+            room.m_spawnwhich = enemyTemplateDatabase.GetValue(room.m_spawnwhich)
+            
+        for store in storeDatabase.m_map.values():
+            for i in range(0, len(store.m_items)):
+                store.m_items[i] = itemDatabase.GetValue(store.m_items[i])            
+            
+        for template in enemyTemplateDatabase.m_vector:
+            template.m_weapon = itemDatabase.GetValue(template.m_weapon)
+            
+        for enemy in enemyDatabase.m_map.values():
+            enemy.m_template = enemyTemplateDatabase.GetValue(enemy.m_template)
+            enemy.m_room = roomDatabase.GetValue(enemy.m_room)
+            
+     
         
     def SaveDatabases(self):
         self.Save()

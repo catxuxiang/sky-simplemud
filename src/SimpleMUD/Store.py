@@ -4,9 +4,7 @@ Created on 2012-4-21
 @author: Sky
 '''
 from SimpleMUD.Entity import Entity
-from SimpleMUD.Item import Item
 from BasicLib.BasicLibString import RemoveWord
-from SimpleMUD.ItemDatabase import itemDatabase
 
 class Store(Entity):
     def __init__(self):
@@ -37,7 +35,7 @@ class Store(Entity):
         itemids = RemoveWord(line, 0).strip()
         for i in itemids.split(' '):
             if i != "0":
-                self.m_items.append(itemDatabase.GetValue(i))
+                self.m_items.append(i)
                 
 '''                
 file = open("Store.instances")

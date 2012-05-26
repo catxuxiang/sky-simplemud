@@ -5,12 +5,9 @@ Created on 2012-4-25
 '''
 from SimpleMUD.Attributes import *
 from SimpleMUD.Entity import Entity
-from SimpleMUD.Item import Item
 from BasicLib.BasicLibLogger import ERRORLOG
 from SocketLib.Telnet import *
-from SimpleMUD.RoomDatabase import roomDatabase
 from BasicLib.BasicLibString import ParseWord, RemoveWord, ParseName
-from SimpleMUD.ItemDatabase import itemDatabase
 
 PLAYERITEMS = 16
 
@@ -27,7 +24,7 @@ class Player(Entity):
         
         self.m_experience = 0
         self.m_level = 1
-        self.m_room = roomDatabase.GetValue("1")
+        self.m_room = "1"
         self.m_money = 0
         
         self.m_nextattacktime = 0
@@ -48,6 +45,7 @@ class Player(Entity):
         
         self.m_statpoints = 18
         
+        self.m_hitpoints = 0
         self.RecalculateStats()
         self.m_hitpoints = int(self.GetAttr(Attribute_MAXHITPOINTS))
         
@@ -351,7 +349,7 @@ class Player(Entity):
         line = file.readline()
         self.m_level = int(ParseWord(line, 1)) 
         line = file.readline()
-        self.m_room = roomDatabase.GetValue(ParseWord(line, 1))
+        self.m_room = ParseWord(line, 1)
         line = file.readline()
         self.m_money = int(ParseWord(line, 1)) 
         line = file.readline()
@@ -370,9 +368,8 @@ class Player(Entity):
         items = RemoveWord(line, 0).strip().split(" ")
         self.m_items = []
         for i in items:
-            if i != 0:
-                item = itemDatabase.GetValue(i)
-                self.m_items.append(item)
+            if i != "0":
+                self.m_items.append(i)
                 
         line = file.readline()
         self.m_weapon = int(ParseWord(line, 1))    

@@ -4,12 +4,8 @@ Created on 2012-4-20
 @author: sky
 '''
 from SimpleMUD.Entity import Entity
-from SimpleMUD.Item import Item
 from SimpleMUD.Attributes import *
 from BasicLib.BasicLibString import RemoveWord, ParseWord
-from SimpleMUD.RoomDatabase import roomDatabase
-from SimpleMUD.EnemyDatabase import enemyTemplateDatabase
-from SimpleMUD.ItemDatabase import itemDatabase
 
 class Room(Entity):
     def GetType(self):
@@ -168,11 +164,10 @@ class Room(Entity):
         
         for d in range(0, NUMDIRECTIONS):
             line = file.readline()
-            self.m_rooms[d] = roomDatabase.GetValue(ParseWord(line, 1))
-            #print(self.m_rooms[d])
+            self.m_rooms[d] = ParseWord(line, 1)
         
         line = file.readline()
-        self.m_spawnwhich = enemyTemplateDatabase.GetValue(ParseWord(line, 1))
+        self.m_spawnwhich = ParseWord(line, 1)
         line = file.readline()
         self.m_maxenemies = int(ParseWord(line, 1))
         #print(self.m_maxenemies)
@@ -183,7 +178,7 @@ class Room(Entity):
         itemids = RemoveWord(line, 0).strip()
         for i in itemids.split(' '):
             if i != "0":
-                self.m_items.append(itemDatabase.GetValue(i))
+                self.m_items.append(i)
                 
         line = file.readline()
         self.m_money = int(ParseWord(line, 1))
