@@ -93,9 +93,9 @@ class Logon(ConnectionHandler):
             
             if playerDatabase.Size() == 0:
                 p.SetRank(PlayerRank_ADMIN)
-                p.SetId(1)
+                p.SetId("1")
             else:
-                p.SetId(playerDatabase.LastID() + 1)
+                p.SetId(str(int(playerDatabase.GetLastId()) + 1))
                 
             playerDatabase.AddPlayer(p)
             self.GotoGame(True)
@@ -118,7 +118,9 @@ class Logon(ConnectionHandler):
         p = playerDatabase.FindFull(self.m_name)
         
         if p.GetLoggedIn():
-            p.GetClient().close()
+            p.GetConn().Close()
+            p.GetConn().Handler().Hungup()
+            p.GetConn().ClearHandlers()
         
         p.SetNewbie(p_newbie)
         p.SetConn(self.m_connection)

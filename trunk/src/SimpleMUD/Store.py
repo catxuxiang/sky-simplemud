@@ -3,22 +3,23 @@ Created on 2012-4-21
 
 @author: Sky
 '''
-from Entity import Entity
-from Item import Item
-from BasicLib import BasicLibString
+from SimpleMUD.Entity import Entity
+from SimpleMUD.Item import Item
+from BasicLib.BasicLibString import RemoveWord
+from SimpleMUD.ItemDatabase import itemDatabase
 
 class Store(Entity):
     def __init__(self):
         Entity.__init__(self)
         self.m_items = []
         
-    def Find(self, p_item):
+    def Find(self, p_name):
         for i in self.m_items:
-            if i.MatchFull(p_item):
+            if i.MatchFull(p_name):
                 return i
             
         for i in self.m_items:
-            if i.Match(p_item):
+            if i.Match(p_name):
                 return i
             
         return None        
@@ -31,15 +32,12 @@ class Store(Entity):
     
     def FromLines(self, file):
         line = file.readline()
-        self.SetName(BasicLibString.RemoveWord(line, 0).strip())          
+        self.SetName(RemoveWord(line, 0).strip())          
         line = file.readline()
-        itemids = BasicLibString.RemoveWord(line, 0).strip()
+        itemids = RemoveWord(line, 0).strip()
         for i in itemids.split(' '):
             if i != "0":
-                item = Item()
-                item.SetId(i)
-                #print(i)
-                self.m_items.append(item)
+                self.m_items.append(itemDatabase.GetValue(i))
                 
 '''                
 file = open("Store.instances")

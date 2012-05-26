@@ -4,9 +4,9 @@ Created on 2012-4-15
 @author: Sky
 '''
 from SimpleMUD.EntityDatabase import EntityDatabase, EntityDatabaseVector
-from BasicLib import BasicLibString
+from BasicLib.BasicLibString import ParseWord
 from SimpleMUD.Enemy import EnemyTemplate, Enemy
-from BasicLib import BasicLibLogger
+from BasicLib.BasicLibLogger import USERLOG
 
 class EnemyTemplateDatabase(EntityDatabaseVector):
 
@@ -15,13 +15,13 @@ class EnemyTemplateDatabase(EntityDatabaseVector):
         line = file.readline()
         while line:
             if line.strip() != "":
-                id1 = BasicLibString.ParseWord(line, 1)
+                id1 = ParseWord(line, 1)
                 enemy = EnemyTemplate()
                 enemy.SetId(id1)
                 enemy.FromLines(file)
                 #print(enemy)
                 self.m_vector.append(enemy)
-                BasicLibLogger.USERLOG.Log( "Loaded Enemy: " + self.m_vector[int(id1)-1].GetName() )
+                USERLOG.Log("Loaded Enemy: " + enemy.GetName())
             line = file.readline()    
             
     
@@ -36,7 +36,7 @@ class EnemyDatabase(EntityDatabase):
         e.LoadTemplate(p_template)
         e.SetCurrentRoom(p_room)
         p_room.AddEnemy(e)  
-        self.m_map[id1 - 1] = e
+        self.m_map[id1] = e
 
     def Delete(self, p_enemy):
         p_enemy.GetCurrentRoom().RemoveEnemy(p_enemy)
@@ -47,13 +47,12 @@ class EnemyDatabase(EntityDatabase):
         line = file.readline()
         while line:
             if line.strip() != "":
-                id1 = BasicLibString.ParseWord(line, 1)
+                id1 = ParseWord(line, 1)
                 enemy = Enemy()
                 enemy.SetId(id1)
-                
                 enemy.FromLines(file)
                 enemy.GetCurrentRoom().AddEnemy(enemy)
-                self.m_map[int(id1) - 1] = enemy
+                self.m_map[id1] = enemy
             line = file.readline() 
         #print(len(self.m_map))
         file.close()
@@ -62,7 +61,7 @@ class EnemyDatabase(EntityDatabase):
         file = open("..\enemies\enemies.instances", "w")
         string = ""
         for i in self.m_map:
-            string += BasicLibString.Fill16Char("[ID]") + self.m_map[i].GetId() + "\n"
+            string += "[ID] " + i + "\n"
             string += self.m_map[i].ToLines()
             string += "\n"
         file.write(string)

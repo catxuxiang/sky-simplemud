@@ -57,7 +57,7 @@ class Connection(DataSocket):
         
         t = GetTimeS()
         
-        if self.m_lastReceiveTime / TIMECHUNK != t / TIMECHUNK:
+        if int(self.m_lastReceiveTime / TIMECHUNK) != int(t / TIMECHUNK):
             self.m_lastdatarate = self.m_datarate / TIMECHUNK
             self.m_datarate = 0
             self.m_lastReceiveTime = t

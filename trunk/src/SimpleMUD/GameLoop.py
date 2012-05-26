@@ -28,8 +28,8 @@ class GameLoop:
         self.SaveDatabases()
         
     def Load(self):
-        src = "..\game.data"
-        if (os.path.exists(src) == False):
+        src = "../game.data"
+        if (os.path.exists(src)):
             file = open(src)
             line = file.readline()
             time = int(ParseWord(line, 1))
@@ -51,13 +51,13 @@ class GameLoop:
         Game.SetRunning(True)
         
     def Save(self):
-        file = open("..\game.data", "w")
+        file = open("../game.data", "w")
         string = ""
-        string += "[GAMETIME]      " + Game.GetTimer().GetMS() + "\n"
-        string += "[SAVEDATABASES] " + self.m_savedatabases + "\n"
-        string += "[NEXTROUND]     " + self.m_nextround + "\n"
-        string += "[NEXTREGEN]     " + self.m_nextregen + "\n"
-        string += "[NEXTHEAL]      " + self.m_nextheal + "\n"
+        string += "[GAMETIME]      " + str(Game.GetTimer().GetMS()) + "\n"
+        string += "[SAVEDATABASES] " + str(self.m_savedatabases) + "\n"
+        string += "[NEXTROUND]     " + str(self.m_nextround) + "\n"
+        string += "[NEXTREGEN]     " + str(self.m_nextregen) + "\n"
+        string += "[NEXTHEAL]      " + str(self.m_nextheal) + "\n"
         file.write(string)
         file.close()
         
@@ -96,22 +96,20 @@ class GameLoop:
         
     def PerformRound(self):
         now = Game.GetTimer().GetMS()
-        map1 = enemyDatabase.m_map
-        for i in map1:
-            if now >= map1[i].GetNextAttackTime() and len(map1[i].GetCurrentRoom().GetPlayers()) > 0:
-                Game.EnemyAttack(map1[i].GetId())
+        for i in enemyDatabase.m_map.values():
+            if now >= i.GetNextAttackTime() and len(i.GetCurrentRoom().GetPlayers()) > 0:
+                Game.EnemyAttack(i.GetId())
                 
     def PerformRegen(self):
         for i in roomDatabase.m_vector:
-            if i.GetSpawnWhich() != 0 and len(i.GetEnemies()) < i.GetMaxEnemies():
-                enemyDatabase.Create(i.GetSpawnWhich(), i.GetId())
-                Game.SendRoom(red + bold + i.GetSpawnWhich().GetName() + " enters the room!", i.GetId())
+            if i.GetSpawnWhich() != None and len(i.GetEnemies()) < i.GetMaxEnemies():
+                enemyDatabase.Create(i.GetSpawnWhich(), i)
+                Game.SendRoom(red + bold + i.GetSpawnWhich().GetName() + " enters the room!", i)
                 
     def PerformHeal(self):
-        map1 = playerDatabase.m_map
-        for i in map1:
-            if map1[i].GetActive():
-                map1[i].AddHitpoints(map1[i].GetAttr(Attribute_HPREGEN))
-                map1[i].PrintStatbar(True)
+        for i in playerDatabase.m_map.values():
+            if i.GetActive():
+                i.AddHitpoints(i.GetAttr(Attribute_HPREGEN))
+                i.PrintStatbar(True)
                                    
     

@@ -7,7 +7,7 @@ Created on 2012-4-14
 class Entity:
     def __init__(self):
         self.m_name = "UNDEFINED"
-        self.m_id = 0
+        self.m_id = "0"
         
     def GetName(self):
         return self.m_name
@@ -15,17 +15,17 @@ class Entity:
     def SetName(self, m_name):
         self.m_name = m_name
     
-    def CompName(self):
+    def GetCompName(self):
         return self.m_name.lower()
     
     def MatchFull(self, p_str):
-        return self.CompName() == p_str.lower()
+        return self.GetCompName() == p_str.lower()
     
     def Match(self, p_str):
         if len(p_str) == 0:
             return True
         
-        name = self.CompName()
+        name = self.GetCompName()
         search = p_str.lower()
         index = name.find(search, 0) 
         

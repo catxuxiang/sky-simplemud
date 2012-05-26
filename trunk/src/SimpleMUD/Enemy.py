@@ -7,6 +7,9 @@ Created on 2012-4-15
 from SimpleMUD.Entity import Entity
 from BasicLib.BasicLibString import *
 from SimpleMUD.Room import Room
+from SimpleMUD.ItemDatabase import itemDatabase
+from SimpleMUD.EnemyDatabase import enemyTemplateDatabase
+from SimpleMUD.RoomDatabase import roomDatabase
 
 class EnemyTemplate(Entity):
     def __init__(self):
@@ -17,7 +20,7 @@ class EnemyTemplate(Entity):
         self.m_strikedamage = 0
         self.m_damageabsorb = 0
         self.m_experience = 0
-        self.m_weapon = 0
+        self.m_weapon = None
         self.m_moneymin = 0
         self.m_moneymax = 0
         
@@ -26,51 +29,51 @@ class EnemyTemplate(Entity):
         name = RemoveWord(line, 0)
         self.m_name = name.strip()
         line = file.readline()
-        self.m_hitpoints = ParseWord(line, 1)
+        self.m_hitpoints = int(ParseWord(line, 1))
         line = file.readline()
-        self.m_accuracy = ParseWord(line, 1)
+        self.m_accuracy = int(ParseWord(line, 1))
         line = file.readline()
-        self.m_dodging = ParseWord(line, 1)
+        self.m_dodging = int(ParseWord(line, 1))
         line = file.readline()
-        self.m_strikedamage = ParseWord(line, 1)
+        self.m_strikedamage = int(ParseWord(line, 1))
         line = file.readline()
-        self.m_damageabsorb = ParseWord(line, 1)
+        self.m_damageabsorb = int(ParseWord(line, 1))
         line = file.readline()
-        self.m_experience = ParseWord(line, 1)
+        self.m_experience = int(ParseWord(line, 1))
         line = file.readline()
-        self.m_weapon = ParseWord(line, 1)
+        self.m_weapon = itemDatabase.GetValue(ParseWord(line, 1))
         line = file.readline()
-        self.m_moneymin = ParseWord(line, 1)
+        self.m_moneymin = int(ParseWord(line, 1))
         line = file.readline()
-        self.m_moneymax = ParseWord(line, 1)
+        self.m_moneymax = int(ParseWord(line, 1))
         
         self.m_loot = {}
         line = file.readline()
         while line.strip() != "[ENDLOOT]":
             id1 = ParseWord(line, 1)
             chance = ParseWord(line, 2)
-            self.m_loot[id1] = chance
+            self.m_loot[id1] = int(chance)
             line = file.readline()
         return file
     
     def ToLines(self):
-        string = Fill16Char("[ID]") + self.m_id + "\n"
-        string += Fill16Char("[NAME]") + self.m_name + "\n"
-        string += Fill16Char("[HITPOINTS]") + self.m_hitpoints + "\n"
-        string += Fill16Char("[ACCURACY]") + self.m_accuracy + "\n"
-        string += Fill16Char("[DODGING]") + self.m_dodging + "\n"
-        string += Fill16Char("[STRIKEDAMAGE]") + self.m_strikedamage + "\n"
-        string += Fill16Char("[DAMAGEABSORB]") + self.m_damageabsorb + "\n"
-        string += Fill16Char("[EXPERIENCE]") + self.m_experience + "\n"
-        string += Fill16Char("[WEAPON]") + self.m_weapon + "\n"
-        string += Fill16Char("[MONEYMIN]") + self.m_moneymin + "\n"
-        string += Fill16Char("[MONEYMAX]") + self.m_moneymax + "\n"        
+        string  = "[ID]           " + self.m_id + "\n"
+        string += "[NAME]         " + self.m_name + "\n"
+        string += "[HITPOINTS]    " + str(self.m_hitpoints) + "\n"
+        string += "[ACCURACY]     " + str(self.m_accuracy) + "\n"
+        string += "[DODGING]      " + str(self.m_dodging) + "\n"
+        string += "[STRIKEDAMAGE] " + str(self.m_strikedamage) + "\n"
+        string += "[DAMAGEABSORB] " + str(self.m_damageabsorb) + "\n"
+        string += "[EXPERIENCE]   " + str(self.m_experience) + "\n"
+        string += "[WEAPON]       " + self.m_weapon.GetId() + "\n"
+        string += "[MONEYMIN]     " + str(self.m_moneymin) + "\n"
+        string += "[MONEYMAX]     " + str(self.m_moneymax) + "\n"        
         for i in self.m_loot:
-            string += Fill16Char("[LOOT]") + i[0] + "  " + i[1] + "\n" 
+            string += "[LOOT]     " + i + "  " + str(self.m_loot[i]) + "\n" 
         return string
     
     def __repr__(self):
-        return self.ToLines("")
+        return self.ToLines()
         
 class Enemy(Entity):   
     def __init__(self):
@@ -101,57 +104,54 @@ class Enemy(Entity):
     def SetNextAttackTime(self, m_nextattacktime):
         self.m_nextattacktime = m_nextattacktime              
         
-    def Name(self):
-        return self.m_template.Name()
+    def GetName(self):
+        return self.m_template.GetName()
     
-    def Accuracy(self):
+    def GetAccuracy(self):
         return self.m_template.m_accuracy
     
-    def Dodging(self):
+    def GetDodging(self):
         return self.m_template.m_dodging
     
-    def StrikeDamage(self):
+    def GetStrikeDamage(self):
         return self.m_template.m_strikedamage
     
-    def DamageAbsorb(self):
+    def GetDamageAbsorb(self):
         return self.m_template.m_damageabsorb
     
-    def Experience(self):
+    def GetExperience(self):
         return self.m_template.m_experience
     
-    def Weapon(self):
+    def GetWeapon(self):
         return self.m_template.m_weapon
     
-    def MoneyMin(self):
+    def GetMoneyMin(self):
         return self.m_template.m_moneymin
     
-    def MoneyMax(self):
+    def GetMoneyMax(self):
         return self.m_template.m_moneymax
     
-    def LootList(self):
+    def GetLootList(self):
         return self.m_template.m_loot
     
     def FromLines(self, file):
         line = file.readline()
-        self.m_template = EnemyTemplate()
-        self.m_template.SetId(ParseWord(line, 1))
+        self.m_template = enemyTemplateDatabase.GetValue(ParseWord(line, 1))
         #print(self.m_template.GetId())
         line = file.readline()
-        self.m_hitpoints = ParseWord(line, 1)
+        self.m_hitpoints = int(ParseWord(line, 1))
         line = file.readline()
-        room = Room()
-        room.SetId(ParseWord(line, 1))
-        self.m_room = room
+        self.m_room = roomDatabase.GetValue(ParseWord(line, 1))
         line = file.readline()
         #print(line)
         self.m_nextattacktime = int(ParseWord(line, 1))
         return file
     
     def ToLines(self):
-        string = Fill16Char("[TEMPLATEID]") + str(self.m_template.GetId()) + "\n"
-        string += Fill16Char("[HITPOINTS]") + str(self.m_hitpoints) + "\n"
-        string += Fill16Char("[ROOM]") + str(self.m_room.GetId()) + "\n"
-        string += Fill16Char("[NEXTATTACKTIME]") + " " + str(self.m_nextattacktime) + "\n"
+        string  = "[TEMPLATEID]     " + self.m_template.GetId() + "\n"
+        string += "[HITPOINTS]      " + str(self.m_hitpoints) + "\n"
+        string += "[ROOM]           " + self.m_room.GetId() + "\n"
+        string += "[NEXTATTACKTIME] " + str(self.m_nextattacktime) + "\n"
         return string
     
     def __repr__(self):

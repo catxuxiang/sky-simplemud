@@ -5,34 +5,32 @@ Created on 2012-4-27
 '''
 from SimpleMUD.EnemyDatabase import EntityDatabase
 from SimpleMUD.Player import Player
-from BasicLib import BasicLibString
+from BasicLib.BasicLibString import ParseWord
 from BasicLib.BasicLibLogger import USERLOG
 
 class PlayerDatabase(EntityDatabase):
-    def LastID(self):
-        return len(self.m_map)
+    def GetLastId(self):
+        return str(len(self.m_map))
     
     def FindActive(self, p_name):
-        map1 = self.m_map
-        for i in self.m_map:
-            if map1[i].MatchFull(p_name) and map1[i].GetActive():
-                return map1[i]
+        for i in self.m_map.values():
+            if i.MatchFull(p_name) and i.GetActive():
+                return i
             
-        for i in map1:
-            if map1[i].Match(p_name) and map1[i].GetActive():
-                return map1[i]
+        for i in self.m_map.values():
+            if i.Match(p_name) and i.GetActive():
+                return i
             
         return None
     
     def FindLoggedIn(self, p_name):
-        map1 = self.m_map
-        for i in map1:
-            if map1[i].MatchFull(p_name) and map1[i].GetLoggedIn():
-                return map1[i]
+        for i in self.m_map.values():
+            if i.MatchFull(p_name) and i.GetLoggedIn():
+                return i
             
-        for i in map1:
-            if map1[i].Match(p_name) and map1[i].GetLoggedIn():
-                return map1[i]
+        for i in self.m_map.values():
+            if i.Match(p_name) and i.GetLoggedIn():
+                return i
             
         return None
     
@@ -43,7 +41,7 @@ class PlayerDatabase(EntityDatabase):
         p_name = self.PlayerFileName(p_name)
         file = open(p_name)
         line = file.readline()
-        id = BasicLibString.ParseWord(line, 1)
+        id = ParseWord(line, 1)
         player = Player()
         player.SetId(id)
         player.FromLines(file)
@@ -64,7 +62,7 @@ class PlayerDatabase(EntityDatabase):
     def SavePlayer(self, p_player):
         name = self.PlayerFileName(p_player.GetName())
         file = open(name, "w")
-        string = "[ID]             " + str(p_player.GetId()) + "\n"
+        string = "[ID]             " + p_player.GetId() + "\n"
         string += p_player.ToLines()
         file.write(string)
         file.close()
@@ -80,12 +78,11 @@ class PlayerDatabase(EntityDatabase):
         return True
 
     def AddPlayer(self, p_player):
-        map1 = self.m_map
-        for i in map1:
-            if map1[i].GetId() == p_player.GetId() or map1[i].GetName() == p_player.GetName():
+        for i in self.m_map.values():
+            if i.GetId() == p_player.GetId() or i.GetName().lower() == p_player.GetName().lower():
                 return False
             
-        self.m_map[int(p_player.GetId()) - 1] = p_player
+        self.m_map[p_player.GetId()] = p_player
         
         file = open('../players/players.txt', 'a')
         file.write(p_player.GetName() + "\n")

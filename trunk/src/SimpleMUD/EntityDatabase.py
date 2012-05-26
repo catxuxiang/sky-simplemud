@@ -18,13 +18,13 @@ class EntityDatabase:
     
     def FindFull(self, p_name):
         for i in self.m_map.values():
-            if i.CompName() == p_name.strip().lower():
+            if i.GetCompName() == p_name.strip().lower():
                 return i
         return None
     
     def Find(self, p_name):
         for i in self.m_map.values():
-            if i.CompName().find(p_name.strip().lower(), 0) == 0:
+            if i.GetCompName().find(p_name.strip().lower(), 0) == 0:
                 return i
         return None
     
@@ -50,7 +50,7 @@ class EntityDatabase:
         return len(self.m_map)
     
     def FindOpenId(self):
-        return len(self.m_map) + 1
+        return str(len(self.m_map) + 1)
     
     def __iter__(self):
         for i in self.m_map:

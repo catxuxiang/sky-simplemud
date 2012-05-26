@@ -15,11 +15,12 @@ from SimpleMUD.StoreDatabase import storeDatabase
 from SimpleMUD.EnemyDatabase import enemyDatabase, enemyTemplateDatabase
 from BasicLib.BasicLibLogger import USERLOG
 from BasicLib.BasicLibRandom import RandomInt
+from SimpleMUD.Train import Train
 
 PLAYERITEMS = 16
 class Game(ConnectionHandler):
     s_timer = Timer()
-    s_running = True
+    s_running = False
     def __init__(self, p_conn, p_player):
         ConnectionHandler.__init__(self, p_conn)
         self.m_player = p_player
@@ -95,9 +96,9 @@ class Game(ConnectionHandler):
         
         if firstword == "who":
             if(p_data.strip() == "who"):
-                p.SendString(self.WhoList())
+                p.SendString(self.GetWhoList())
             else:
-                p.SendString(self.WhoList("all"))
+                p.SendString(self.GetWhoList("all"))
             return
         
         if firstword == "look" or firstword == "l":
@@ -134,7 +135,7 @@ class Game(ConnectionHandler):
                 return
             
             if p.Train():
-                p.SendString(green + bold + "You are now level " + str(p.Level()))
+                p.SendString(green + bold + "You are now level " + str(p.GetLevel()))
             else:
                 p.SendString(red + bold + "You don't have enough experience to train!")
                 
@@ -189,8 +190,8 @@ class Game(ConnectionHandler):
                 p.SendString(red + bold + "You can't kick that player!")
                 return
             
-            p.GetConn().Close()
-            self.LogoutMessage(p.GetName() + " has been kicked by " + p.GetName() + "!!!")
+            k.GetConn().Close()
+            self.LogoutMessage(k.GetName() + " has been kicked by " + p.GetName() + "!!!")
             return
         
         # ------------------------------------------------------------------------
@@ -256,13 +257,12 @@ class Game(ConnectionHandler):
         Game.SendRoom(bold + p.GetName() + " says: " + dim + p_data, p.GetCurrentRoom())
         
     def Enter(self):
-        USERLOG.Log(str(self.m_connection.GetRemoteAddress()) + " - User " + str(self.m_player.GetName()) + " entering Game state.")
+        USERLOG.Log(self.m_connection.GetRemoteAddress() + " - User " + self.m_player.GetName() + " entering Game state.")
         
         self.m_lastcommand = ""
         
         p = self.m_player
-        print(type(p))
-        p.GetCurrentRoom().AddPlayer(p.GetId())
+        p.GetCurrentRoom().AddPlayer(p)
         p.SetActive(True)
         p.SetLoggedIn(True)
         
@@ -295,16 +295,14 @@ class Game(ConnectionHandler):
         self.LogoutMessage(p.GetName() + " has been kicked for flooding!")
         
     def SendGlobal(self, p_str):
-        map1 = playerDatabase.m_map
-        for i in map1:
-            if map1[i].GetLoggedIn():
-                map1[i].SendString(p_str)
+        for i in playerDatabase.m_map.values():
+            if i.GetLoggedIn():
+                i.SendString(p_str)
 
     def SendGame(self, p_str):
-        map1 = playerDatabase.m_map
-        for i in map1:
-            if map1[i].GetActive():
-                map1[i].SendString(p_str)     
+        for i in playerDatabase.m_map.values():
+            if i.GetActive():
+                i.SendString(p_str)     
                 
     def LogoutMessage(self, p_reason):
         self.SendGame(red + bold + p_reason)
@@ -312,9 +310,9 @@ class Game(ConnectionHandler):
     def Announce(self, p_announcement):
         self.SendGlobal(cyan + bold + "System Announcement: " + p_announcement)
         
-    def Whisper(self, p_str, p_player):
+    def Whisper(self, p_str, p_name):
         # find the player
-        player = playerDatabase.FindActive(p_player)
+        player = playerDatabase.FindActive(p_name)
         
         # if no match was found
         if player == None:
@@ -324,8 +322,8 @@ class Game(ConnectionHandler):
             self.m_player.SendString(yellow + "You whisper to " + player.GetName() + ": " + reset + p_str)
             
     def GetWhoStr(self, p):
-        string = " " + p.GetName() + "| "
-        string += str(p.Level()) + "| "
+        string  = " " + p.GetName() + "| "
+        string += str(p.GetLevel()) + "| "
         
         if p.GetActive():
             string += green + "Online  " + white
@@ -346,26 +344,23 @@ class Game(ConnectionHandler):
         string += white + "\r\n"
         return string
             
-    def WhoList(self, p_who = ""):
-        string = white + bold + \
-        "--------------------------------------------------------------------------------\r\n" + \
-        " Name             | Level     | Activity | Rank\r\n" + \
-        "--------------------------------------------------------------------------------\r\n";
+    def GetWhoList(self, p_who = ""):
+        string = (white + bold + 
+        "--------------------------------------------------------------------------------\r\n" + 
+        " Name             | Level     | Activity | Rank\r\n" + 
+        "--------------------------------------------------------------------------------\r\n")
         
         whostr = ""
         if p_who == "all":
-            map1 = playerDatabase.m_map
-            for i in map1:
-                whostr += self.GetWhoStr(map1[i])
+            for i in playerDatabase.m_map.values():
+                whostr += self.GetWhoStr(i)
         else:
-            map1 = playerDatabase.m_map
-            for i in map1:
-                if map1[i].GetLoggedIn():
-                    whostr += self.GetWhoStr(map1[i])    
+            for i in playerDatabase.m_map.values():
+                if i.GetLoggedIn():
+                    whostr += self.GetWhoStr(i)    
         
         string += whostr
-        string += \
-        "--------------------------------------------------------------------------------"
+        string += "--------------------------------------------------------------------------------"
         return string
     
     def PrintHelp(self, p_rank):
@@ -420,10 +415,10 @@ class Game(ConnectionHandler):
         p = self.m_player
         return white + bold + \
         "---------------------------------- Your Stats ----------------------------------\r\n" + \
-        " Name:          " + str(p.GetName()) + "\r\n" + \
-        " Rank:          " + str(GetRankString(p.GetRank())) + "\r\n" + \
-        " HP/Max:        " + str(p.HitPoints()) + "/" + str(p.GetAttr(Attribute_MAXHITPOINTS)) + \
-        "  (" + str(p.HitPoints()/p.GetAttr(Attribute_MAXHITPOINTS)) + "%)\r\n" + \
+        " Name:          " + p.GetName() + "\r\n" + \
+        " Rank:          " + GetRankString(p.GetRank()) + "\r\n" + \
+        " HP/Max:        " + str(p.GetHitPoints()) + "/" + str(p.GetAttr(Attribute_MAXHITPOINTS)) + \
+        "  (" + str(p.GetHitPoints()/p.GetAttr(Attribute_MAXHITPOINTS)) + "%)\r\n" + \
         str(self.PrintExperience()) + "\r\n" + \
         " Strength:      " + str(p.GetAttr(Attribute_STRENGTH)) + \
         " Accuracy:      " + str(p.GetAttr(Attribute_ACCURACY)) + "\r\n" + \
@@ -438,10 +433,10 @@ class Game(ConnectionHandler):
     def PrintExperience(self):
         p = self.m_player
         return white + bold + \
-        " Level:         " + str(p.Level()) + "\r\n" + \
+        " Level:         " + str(p.GetLevel()) + "\r\n" + \
         " Experience:    " + str(p.GetExperience()) + "/" + \
-        str(p.NeedForLevel(p.Level() + 1)) + " (" + \
-        str(int(p.GetExperience())/p.NeedForLevel(p.Level() + 1)) + \
+        str(p.NeedForLevel(p.GetLevel() + 1)) + " (" + \
+        str(p.GetExperience()/p.NeedForLevel(p.GetLevel() + 1)) + \
         "%)"
         
     def PrintInventory(self):
@@ -469,16 +464,15 @@ class Game(ConnectionHandler):
         else:
             itemlist += p.GetArmor().GetName()
             
-        itemlist += "\r\n Money:  $" + p.GetMoney()
+        itemlist += "\r\n Money:  $" + str(p.GetMoney())
         
-        itemlist += \
-        "\r\n--------------------------------------------------------------------------------"
+        itemlist += "\r\n--------------------------------------------------------------------------------"
         
         return itemlist
     
-    def UseItem(self, p_item):
+    def UseItem(self, p_name):
         p = self.m_player
-        i = p.GetItemIndex(p_item)
+        i = p.GetItemIndex(p_name)
         
         if i == -1:
             p.SendString(red + bold + "Could not find that item!")
@@ -494,23 +488,23 @@ class Game(ConnectionHandler):
             Game.SendRoom(green + bold + p.GetName() + " puts on a " + itm.GetName(), p.GetCurrentRoom())
             return True
         elif itm.GetType() == ItemType_HEALING:
-            p.AddBonuses(itm.GetId())
-            p.AddHitpoints(RandomInt(itm.Min(), itm.Max()))
+            p.AddBonuses(itm)
+            p.AddHitpoints(RandomInt(itm.GetMin(), itm.GetMax()))
             p.DropItem(i)
             Game.SendRoom(green + bold + p.GetName() + " uses a " + itm.GetName(), p.GetCurrentRoom())
             return True
         return False
 
-    def RemoveItem(self, p_item):
+    def RemoveItem(self, p_name):
         p = self.m_player
-        p_item = p_item.lower()
+        p_name = p_name.lower()
         
-        if p_item == "weapon" and p.GetWeapon() != None:
+        if p_name == "weapon" and p.GetWeapon() != None:
             Game.SendRoom(green + bold + p.GetName() + " puts away a " + p.GetWeapon().GetName(), p.GetCurrentRoom())
             p.RemoveWeapon()
             return True
         
-        if p_item == "armor" and p.GetArmor() != None:
+        if p_name == "armor" and p.GetArmor() != None:
             Game.SendRoom(green + bold + p.GetName() + " takes off a " + p.GetArmor().GetName(), p.GetCurrentRoom())
             p.RemoveArmor()
             return True
@@ -520,13 +514,10 @@ class Game(ConnectionHandler):
     
     def PrintRoom(self, p_room):
         desc = "\r\n" + bold + white + p_room.GetName() + "\r\n"
-        temp = ""
-        count = 0
-        
         desc += bold + magenta + p_room.GetDescription() + "\r\n"
         desc += bold + green + "exits: "
         for d in range(0, NUMDIRECTIONS):
-            if p_room.GetAdjacent(d) != 0:
+            if p_room.GetAdjacent(d) != None:
                 desc += DIRECTIONSTRINGS[d] + "  "
         desc += "\r\n"
         
@@ -553,7 +544,7 @@ class Game(ConnectionHandler):
         temp = bold + cyan + "People: "
         count = 0
         for i in p_room.GetPlayers():
-            temp += playerDatabase.GetValue(i).GetName() + ", "
+            temp += i.GetName() + ", "
             count += 1
             
         if count > 0:
@@ -577,42 +568,42 @@ class Game(ConnectionHandler):
     
     @staticmethod
     def SendRoom(p_text, p_room):
-        print("222" + str(p_room) + "111")
+        #print("222" + str(p_room) + "111")
         for i in p_room.GetPlayers():
-            playerDatabase.GetValue(i).SendString(p_text)
+            i.SendString(p_text)
             
     def Move(self, p_direction):
         p = self.m_player
-        next = roomDatabase.GetValue(p.GetCurrentRoom().GetAdjacent(p_direction))
+        next1 = p.GetCurrentRoom().GetAdjacent(p_direction)
         previous = p.GetCurrentRoom()
         
-        if next == None:
+        if next1 == None:
             Game.SendRoom(red + p.GetName() + " bumps into the wall to the " + \
                   DIRECTIONSTRINGS[p_direction] + "!!!", \
                   p.GetCurrentRoom())
             return
         
-        previous.RemovePlayer(p.GetId())
+        previous.RemovePlayer(p)
         
         Game.SendRoom(green + p.GetName() + " leaves to the " + \
               DIRECTIONSTRINGS[p_direction] + ".", \
               previous)
         Game.SendRoom(green + p.GetName() + " enters from the " + \
               DIRECTIONSTRINGS[OppositeDirection(p_direction)] + ".", \
-              next)
+              next1)
         p.SendString(green + "You walk " + DIRECTIONSTRINGS[p_direction] + ".")
-        p.SetCurrentRoom(next)
-        next.AddPlayer(p.GetId())
+        p.SetCurrentRoom(next1)
+        next1.AddPlayer(p)
         
-        p.SendString(self.PrintRoom(next))
+        p.SendString(self.PrintRoom(next1))
         
-    def GetItem(self, p_item):
+    def GetItem(self, p_name):
         p = self.m_player
         
-        if p_item[0] == '$':
+        if p_name[0] == '$':
             # clear off the '$', and convert the result into a number.
-            p_item = p_item[1:len(p_item)]
-            m = float(p_item)
+            p_name = p_name[1:len(p_name)]
+            m = int(p_name)
             
             # make sure there's enough money in the room
             if m > p.GetCurrentRoom().GetMoney():
@@ -623,7 +614,7 @@ class Game(ConnectionHandler):
                 Game.SendRoom( cyan + bold + p.GetName() + " picks up $" + m + ".", p.GetCurrentRoom())
             return
         
-        i = p.GetCurrentRoom().FindItem(p_item)
+        i = p.GetCurrentRoom().FindItem(p_name)
         if i == None:
             p.SendString(red + bold + "You don't see that here!")
             return
@@ -635,13 +626,13 @@ class Game(ConnectionHandler):
         p.GetCurrentRoom().RemoveItem(i)
         Game.SendRoom(cyan + bold + p.GetName() + " picks up " + i.GetName() + ".", p.GetCurrentRoom())
         
-    def DropItem(self, p_item):
+    def DropItem(self, p_name):
         p = self.m_player
         
-        if p_item[0] == '$':
+        if p_name[0] == '$':
             # clear off the '$', and convert the result into a number.
-            p_item = p_item[1:len(p_item)]
-            m = float(p_item)
+            p_name = p_name[1:len(p_name)]
+            m = int(p_name)
             
             # make sure there's enough money in the inventory
             if m > p.GetMoney():
@@ -652,7 +643,7 @@ class Game(ConnectionHandler):
                 Game.SendRoom(cyan + bold + p.GetName() + " drops $" + m + ".", p.GetCurrentRoom())
             return
         
-        i = p.GetItemIndex(p_item)
+        i = p.GetItemIndex(p_name)
         if i == -1:
             p.SendString(red + bold + "You don't have that!")
             return
@@ -664,11 +655,11 @@ class Game(ConnectionHandler):
     def GotoTrain(self):
         p = self.m_player
         p.SetActive(False)
-        p.GetConn().AddHandler(self.Train(self.m_connection, p.GetId()))
+        p.GetConn().AddHandler(Train(self.m_connection, p))
         self.LogoutMessage(p.GetName() + " leaves to edit stats")
         
-    def StoreList(self, p_store):
-        s = storeDatabase.GetValue(p_store)
+    def StoreList(self, p_id):
+        s = storeDatabase.GetValue(p_id)
         output = white + bold + \
               "--------------------------------------------------------------------------------\r\n"
         output += " Welcome to " + s.GetName() + "!\r\n"
@@ -684,16 +675,16 @@ class Game(ConnectionHandler):
         
         return output
     
-    def Buy(self, p_item):
+    def Buy(self, p_name):
         p = self.m_player
         s = storeDatabase.GetValue(p.GetCurrentRoom().GetData())
         
-        i = s.Find(p_item)
+        i = s.Find(p_name)
         if i == None:
             p.SendString(red + bold + "Sorry, we don't have that item!")
             return
         
-        if p.GetMoney() < i.Price():
+        if p.GetMoney() < i.GetPrice():
             p.SendString(red + bold + "Sorry, but you can't afford that!")
             return
         
@@ -701,14 +692,14 @@ class Game(ConnectionHandler):
             p.SendString(red + bold + "Sorry, but you can't carry that much!")
             return
         
-        p.SetMoney(p.GetMoney() - i.Price())
+        p.SetMoney(p.GetMoney() - i.GetPrice())
         Game.SendRoom(cyan + bold + p.GetName() + " buys a " + i.GetName(), p.GetCurrentRoom())
         
-    def Sell(self, p_item):
+    def Sell(self, p_name):
         p = self.m_player
         s = storeDatabase.GetValue(p.GetCurrentRoom().GetData())
         
-        index = p.GetItemIndex(p_item)
+        index = p.GetItemIndex(p_name)
         if index == -1:
             p.SendString(red + bold + "Sorry, you don't have that!")
             return
@@ -719,7 +710,7 @@ class Game(ConnectionHandler):
             return
         
         p.DropItem(index)
-        p.SetMoney(p.GetMoney() + i.Price())
+        p.SetMoney(p.GetMoney() + i.GetPrice())
         Game.SendRoom(cyan + bold + p.GetName() + " sells a " + i.GetName(), p.GetCurrentRoom())
     
     @staticmethod    
@@ -735,23 +726,23 @@ class Game(ConnectionHandler):
             damage = RandomInt(1, 3)
             e.SetNextAttackTime(now + 1000)
         else:
-            damage = RandomInt(e.GetWeapon().Min(), e.GetWeapon().Max())
-            e.SetNextAttackTime(now + e.GetWeapon().Speed()*1000)
+            damage = RandomInt(e.GetWeapon().GetMin(), e.GetWeapon().GetMax())
+            e.SetNextAttackTime(now + e.GetWeapon().GetSpeed()*1000)
         
-        if RandomInt(0, 99) >= e.Accuracy() - p.GetAttr(Attribute_DODGING):
+        if RandomInt(0, 99) >= e.GetAccuracy() - p.GetAttr(Attribute_DODGING):
             Game.SendRoom(white + e.GetName() + " swings at " + p.GetName() + \
                         " but misses!", e.GetCurrentRoom())
             return
         
-        damage += e.StrikeDamage()
+        damage += e.GetStrikeDamage()
         damage -= p.GetAttr(Attribute_DAMAGEABSORB)
         if damage < 1:
             damage = 1
         p.AddHitpoints(-damage)
         Game.SendRoom(red + e.GetName() + " hits " + p.GetName() + " for " + damage + " damage!", e.GetCurrentRoom())
         
-        if p.HitPoints() <= 0:
-            Game.PlayerKilled(p.GetId())
+        if p.GetHitPoints() <= 0:
+            Game.PlayerKilled(p)
     
     @staticmethod
     def PlayerKilled(self, p_player):
@@ -759,7 +750,7 @@ class Game(ConnectionHandler):
         Game.SendRoom(red + bold + p.GetName() + " has died!", p.GetCurrentRoom())
         
         # drop the money
-        m = p.GetMoney() / 10
+        m = int(p.GetMoney() / 10)
         if m > 0:
             p.GetCurrentRoom().SetMoney(p.GetCurrentRoom().GetMoney() + m)
             p.SetMoney(p.GetMoney() - m)
@@ -768,7 +759,7 @@ class Game(ConnectionHandler):
         # drop an item
         if len(p.GetItems()) > 0:
             index = RandomInt(0, PLAYERITEMS - 1)
-            while p.GetItem(index) == 0:
+            while p.GetItem(index) == None:
                 index = RandomInt(0, PLAYERITEMS - 1)
             i = p.GetItem(index)
             p.GetCurrentRoom().AddItem(i)
@@ -777,12 +768,12 @@ class Game(ConnectionHandler):
             Game.SendRoom(cyan + i.GetName() + " drops to the ground.", p.GetCurrentRoom())
             
         # subtract 10% experience
-        exp = p.GetExperience() / 10
+        exp = int(p.GetExperience() / 10)
         p.SetExperience(p.GetExperience() - exp)
         
         # remove the player from the room and transport him to room 1.
         p.GetCurrentRoom().RemovePlayer(p_player)
-        p.SetCurrentRoom(1)
+        p.SetCurrentRoom(roomDatabase.GetValue("1"))
         p.GetCurrentRoom().AddPlayer(p_player)
         
         # set the hitpoints to 70%
@@ -791,15 +782,15 @@ class Game(ConnectionHandler):
         p.SendString(red + bold + "You have lost " + exp + " experience!")
         Game.SendRoom(white + bold + p.GetName() + " appears out of nowhere!!" , p.GetCurrentRoom())
         
-    def PlayerAttack(self, p_enemy):
+    def PlayerAttack(self, p_name):
         p = self.m_player
-        now = self.GetTimer().GetMS()
+        now = Game.GetTimer().GetMS()
         
         if now < p.GetNextAttackTime():
             p.SendString(red + bold + "You can't attack yet!")
             return
         
-        ptr = p.GetCurrentRoom().FindEnemy(p_enemy)
+        ptr = p.GetCurrentRoom().FindEnemy(p_name)
         if ptr == None:
             p.SendString(red + bold + "You don't see that here!")
             return
@@ -810,8 +801,8 @@ class Game(ConnectionHandler):
             damage = RandomInt(1, 3)
             p.SetNextAttackTime(now + 1000)
         else:
-            damage = RandomInt(p.GetWeapon().Min(), p.GetWeapon().Max())
-            p.SetNextAttackTime(now + p.Weapon().Speed() * 1000)
+            damage = RandomInt(p.GetWeapon().GetMin(), p.GetWeapon().GetMax())
+            p.SetNextAttackTime(now + p.GetWeapon().GetSpeed() * 1000)
         
         if RandomInt(0, 99) >= p.GetAttr(Attribute_ACCURACY) - e.Dodging():
             Game.SendRoom(white + p.GetName() + " swings at " + e.GetName() + \
@@ -824,34 +815,34 @@ class Game(ConnectionHandler):
         if damage < 1:
             damage = 1
         
-        e.SetHitPoints(e.HitPoints() - damage)
+        e.SetHitPoints(e.GetHitPoints() - damage)
         Game.SendRoom(red + p.GetName() + " hits " + e.GetName() + " for " + damage + " damage!", p.GetCurrentRoom())
         
-        if e.HitPoints() <= 0:
-            self.EnemyKilled(e.GetId(), self.m_player)
+        if e.GetHitPoints() <= 0:
+            self.EnemyKilled(e, self.m_player)
             
     def EnemyKilled(self, p_enemy, p_player):
         e = p_enemy
         Game.SendRoom(cyan + bold + e.GetName() + " has died!", e.GetCurrentRoom())
         
         # drop the money
-        m = RandomInt(e.MoneyMin(), e.MoneyMax())
+        m = RandomInt(e.GetMoneyMin(), e.GetMoneyMax())
         if m > 0:
             e.GetCurrentRoom().SetMoney(e.GetCurrentRoom().GetMoney() + m)
             Game.SendRoom(cyan + "$" + m + " drops to the ground.", e.GetCurrentRoom())
             
         # drop all the items
-        list = e.LootList()
-        for i in list:
-            if RandomInt(0, 99) < list[i]:
+        list1 = e.GetLootList()
+        for i in list1.keys():
+            if RandomInt(0, 99) < list1[i]:
                 item = itemDatabase.GetValue(i)
                 e.GetCurrentRoom().AddItem(item)
                 Game.SendRoom(cyan + item.GetName() + " drops to the ground.", e.GetCurrentRoom())
                 
         # add experience to the player who killed it
         p = p_player
-        p.SetExperience(p.GetExperience() + e.Experience())
-        p.SendString(cyan + bold + "You gain " + e.Experience() + " experience.")
+        p.SetExperience(p.GetExperience() + e.GetExperience())
+        p.SendString(cyan + bold + "You gain " + str(e.GetExperience()) + " experience.")
         
         # remove the enemy from the game
         enemyDatabase.Delete(p_enemy)
