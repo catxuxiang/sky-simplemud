@@ -6,10 +6,6 @@ Created on 2012-4-15
 
 from SimpleMUD.Entity import Entity
 from BasicLib.BasicLibString import *
-from SimpleMUD.Room import Room
-from SimpleMUD.ItemDatabase import itemDatabase
-from SimpleMUD.EnemyDatabase import enemyTemplateDatabase
-from SimpleMUD.RoomDatabase import roomDatabase
 
 class EnemyTemplate(Entity):
     def __init__(self):
@@ -41,7 +37,7 @@ class EnemyTemplate(Entity):
         line = file.readline()
         self.m_experience = int(ParseWord(line, 1))
         line = file.readline()
-        self.m_weapon = itemDatabase.GetValue(ParseWord(line, 1))
+        self.m_weapon = ParseWord(line, 1)
         line = file.readline()
         self.m_moneymin = int(ParseWord(line, 1))
         line = file.readline()
@@ -136,12 +132,12 @@ class Enemy(Entity):
     
     def FromLines(self, file):
         line = file.readline()
-        self.m_template = enemyTemplateDatabase.GetValue(ParseWord(line, 1))
+        self.m_template = ParseWord(line, 1)
         #print(self.m_template.GetId())
         line = file.readline()
         self.m_hitpoints = int(ParseWord(line, 1))
         line = file.readline()
-        self.m_room = roomDatabase.GetValue(ParseWord(line, 1))
+        self.m_room = ParseWord(line, 1)
         line = file.readline()
         #print(line)
         self.m_nextattacktime = int(ParseWord(line, 1))

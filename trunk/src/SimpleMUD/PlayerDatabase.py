@@ -102,3 +102,4 @@ class PlayerDatabase(EntityDatabase):
         self.SavePlayer(p_player)
         
 playerDatabase = PlayerDatabase()
+
