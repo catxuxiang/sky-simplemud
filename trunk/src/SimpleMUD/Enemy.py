@@ -73,6 +73,7 @@ class EnemyTemplate(Entity):
         
 class Enemy(Entity):   
     def __init__(self):
+        Entity.__init__(self)
         self.m_template = None
         self.m_hitpoints = 0
         self.m_room = None

@@ -39,7 +39,7 @@ class Player(Entity):
         self.m_baseattributes[Attribute_HEALTH] = 1
         self.m_baseattributes[Attribute_AGILITY] = 1
         
-        self.m_items = []
+        self.m_inventory = []        
         self.m_weapon = -1
         self.m_armor = -1
         
@@ -49,7 +49,7 @@ class Player(Entity):
         self.RecalculateStats()
         self.m_hitpoints = int(self.GetAttr(Attribute_MAXHITPOINTS))
         
-        self.m_inventory = []
+        
              
     def GetLevel(self):
         return self.m_level
@@ -94,7 +94,7 @@ class Player(Entity):
             return self.m_inventory[p_index]
     
     def GetItems(self):
-        return self.m_items
+        return self.m_inventory
     
     def GetMaxItems(self):
         return PLAYERITEMS
@@ -217,9 +217,9 @@ class Player(Entity):
             self.m_hitpoints = self.GetAttr(Attribute_MAXHITPOINTS)
             
     def PickUpItem(self, p_item):
-        if len(self.m_items) < self.GetMaxItems():
+        if len(self.m_inventory) < self.GetMaxItems():
             #find the first open index to put the item in.
-            self.m_items.append(p_item)
+            self.m_inventory.append(p_item)
             return True
         else:
             return False
@@ -325,8 +325,8 @@ class Player(Entity):
         
         string += "[INVENTORY]      "
         
-        for i in range(0, len(self.m_inventory)):
-            string += self.m_inventory[i].GetId() + " "
+        for i in self.m_inventory:
+            string += i.GetId() + " "
         string += "\n"
         
         string += "[WEAPON]         " + str(self.m_weapon) + "\n"
@@ -366,17 +366,18 @@ class Player(Entity):
         
         line = file.readline()
         items = RemoveWord(line, 0).strip().split(" ")
-        self.m_items = []
+        self.m_inventory = []
         for i in items:
-            if i != "0":
-                self.m_items.append(i)
+            if i != "" and i != "0":
+                self.m_inventory.append(i)
                 
         line = file.readline()
         self.m_weapon = int(ParseWord(line, 1))    
         line = file.readline()
         self.m_armor = int(ParseWord(line, 1))  
-                
-        self.RecalculateStats()
+        
+        #because item msg have not been loaded, So comment        
+        #self.RecalculateStats()
 
    
     

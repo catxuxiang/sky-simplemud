@@ -7,6 +7,7 @@ from SocketLib.ConnectionHandler import ConnectionHandler
 from SocketLib.Telnet import *
 from BasicLib.BasicLibLogger import USERLOG, ERRORLOG
 from SimpleMUD.PlayerDatabase import playerDatabase
+from SimpleMUD.RoomDatabase import roomDatabase
 from SimpleMUD.Player import Player
 from SimpleMUD.Attributes import *
 from SimpleMUD.Game import Game
@@ -90,6 +91,7 @@ class Logon(ConnectionHandler):
             p = Player()
             p.SetName(self.m_name)
             p.SetPassword(p_data)
+            p.m_room = roomDatabase.GetValue(p.m_room)
             
             if playerDatabase.Size() == 0:
                 p.SetRank(PlayerRank_ADMIN)

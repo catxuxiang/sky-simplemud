@@ -40,6 +40,7 @@ class EnemyDatabase(EntityDatabase):
 
     def Delete(self, p_enemy):
         p_enemy.GetCurrentRoom().RemoveEnemy(p_enemy)
+        del self.m_map[p_enemy.GetId()]
         del p_enemy
     
     def Load(self):
@@ -51,7 +52,7 @@ class EnemyDatabase(EntityDatabase):
                 enemy = Enemy()
                 enemy.SetId(id1)
                 enemy.FromLines(file)
-                enemy.GetCurrentRoom().AddEnemy(enemy)
+                #enemy.GetCurrentRoom().AddEnemy(enemy)
                 self.m_map[id1] = enemy
             line = file.readline() 
         #print(len(self.m_map))
