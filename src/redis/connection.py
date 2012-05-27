@@ -113,6 +113,9 @@ class PythonParser(object):
             if length == -1:
                 return None
             response = self.read(length)
+            #Start Modify By Sky
+            response = str(response, encoding = "utf-8")
+            #End Modify By Sky
             return response
         # multi-bulk response
         elif byte == '*':
