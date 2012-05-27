@@ -1,3 +1,4 @@
+# -*- coding: gbk -*- 
 '''
 Created on 2012-5-26
 
@@ -8,4 +9,6 @@ r = StrictRedis(host='localhost', port=6379, db=0)
 r.set('foo', 'bar')
 #print(str(r.get('foo'), encoding = "utf-8") == 'bar')
 print(r.get('foo'))
+r.hset("MyHash", "field1", "ÐíÏè")
+print(r.hget("MyHash", "field1"))
 
