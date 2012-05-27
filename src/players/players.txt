@@ -1,3 +1,5 @@
 sky
-ninja
 sky1
+ninja
+sky3
+sky2

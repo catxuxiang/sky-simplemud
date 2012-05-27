@@ -34,9 +34,9 @@ class Train(ConnectionHandler):
             return
         
         n = p_data[0]
-        if n >= '1' and n <= '3' and p.GetStatPoints() > 0:
+        if n >= "1" and n <= "3" and p.GetStatPoints() > 0:
             p.SetStatPoints(p.GetStatPoints() - 1)
-            p.AddToBaseAttr(n - '1', 1)
+            p.AddToBaseAttr(int(n) - 1, 1)
             
         self.PrintStats(True)
         

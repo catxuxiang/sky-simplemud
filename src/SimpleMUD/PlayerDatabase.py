@@ -41,14 +41,14 @@ class PlayerDatabase(EntityDatabase):
         p_name = self.PlayerFileName(p_name)
         file = open(p_name)
         line = file.readline()
-        id = ParseWord(line, 1)
+        id1 = ParseWord(line, 1)
         player = Player()
-        player.SetId(id)
+        player.SetId(id1)
         player.FromLines(file)
         file.close()
-        self.m_map[id] = player
+        self.m_map[id1] = player
         
-        USERLOG.Log("Loaded Player: " + self.m_map[id].GetName())
+        USERLOG.Log("Loaded Player: " + self.m_map[id1].GetName())
         
     def Load(self):
         file = open("../players/players.txt")
@@ -70,7 +70,7 @@ class PlayerDatabase(EntityDatabase):
     def Save(self):
         file = open("../players/players.txt", "w")
         string = ""
-        for i in self.m_map:
+        for i in self.m_map.values():
             string += i.GetName() + "\n"
             self.SavePlayer(i)
         file.write(string)

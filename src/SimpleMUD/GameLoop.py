@@ -95,8 +95,10 @@ class GameLoop:
         for player in playerDatabase.m_map.values():
             player.m_room = roomDatabase.GetValue(player.m_room)
             
-            for i in range(0, len(player.m_items)):
-                player.m_items[i] = itemDatabase.GetValue(player.m_items[i])
+            for i in range(0, len(player.m_inventory)):
+                player.m_inventory[i] = itemDatabase.GetValue(player.m_inventory[i])
+                
+            player.RecalculateStats()
             
             
         for room in roomDatabase.m_vector:
@@ -118,6 +120,7 @@ class GameLoop:
         for enemy in enemyDatabase.m_map.values():
             enemy.m_template = enemyTemplateDatabase.GetValue(enemy.m_template)
             enemy.m_room = roomDatabase.GetValue(enemy.m_room)
+            enemy.GetCurrentRoom().AddEnemy(enemy)
             
      
         
@@ -131,7 +134,7 @@ class GameLoop:
         now = Game.GetTimer().GetMS()
         for i in enemyDatabase.m_map.values():
             if now >= i.GetNextAttackTime() and len(i.GetCurrentRoom().GetPlayers()) > 0:
-                Game.EnemyAttack(i.GetId())
+                Game.EnemyAttack(i)
                 
     def PerformRegen(self):
         for i in roomDatabase.m_vector:
