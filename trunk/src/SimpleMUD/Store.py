@@ -28,11 +28,10 @@ class Store(Entity):
                 return True
         return False
     
-    def FromLines(self, file):
-        line = file.readline()
-        self.SetName(RemoveWord(line, 0).strip())          
-        line = file.readline()
-        itemids = RemoveWord(line, 0).strip()
+    def Load(self, sr):
+        id1 = self.GetId()
+        self.SetName(sr.get("Store:" + id1 + ":NAME"))          
+        itemids = sr.get("Store:" + id1 + ":Items")
         for i in itemids.split(' '):
             if i != "0":
                 self.m_items.append(i)
