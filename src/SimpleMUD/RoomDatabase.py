@@ -10,36 +10,23 @@ from SimpleMUD.EnemyDatabase import EntityDatabaseVector
 
 class RoomDatabase(EntityDatabaseVector):
     def LoadTemplates(self):
-        file = open("../maps/default.map")
-        line = file.readline()
-        while line:
-            if line.strip() != "":
-                id1 = ParseWord(line, 1)
-                room = Room()
-                room.SetId(id1)
-                room.LoadTemplate(file)
-                self.m_vector.append(room)
-            line = file.readline() 
-        file.close()  
+        sr = EntityDatabaseVector.Sr
+        for i in range(0, sr.llen("RoomTemplateList")):
+            id1 = sr.lindex("RoomTemplateList", i)
+            room = Room()
+            room.SetId(id1)
+            room.LoadTemplate(sr)
+            self.m_vector.append(room)
 
     def LoadData(self):
-        file = open("../maps/default.data")
-        line = file.readline()
-        while line:
-            if line.strip() != "":
-                id1 = ParseWord(line, 1)
-                self.m_vector[int(id1) - 1].LoadData(file)
-            line = file.readline() 
-        file.close()
+        sr = EntityDatabaseVector.Sr
+        for i in self.m_vector:
+            i.LoadData(sr)
         
     def SaveData(self):
-        file = open("../maps/default.data", "w")
-        string = ""
+        sr = EntityDatabaseVector.Sr
         for i in self.m_vector:
-            string += "[ROOMID] " + i.GetId() + "\n"
-            string += i.SaveData() + "\n"
-        file.write(string)
-        file.close()
+            i.SaveData(sr)
 
 roomDatabase = RoomDatabase()
         

@@ -10,18 +10,14 @@ from BasicLib.BasicLibLogger import USERLOG
 
 class StoreDatabase(EntityDatabase):
     def Load(self):
-        file = open("../stores/stores.str")
-        line = file.readline()
-        while line:
-            if line.strip() != "":
-                id1 = ParseWord(line, 1)
-                store = Store()
-                store.SetId(id1)
-                store.FromLines(file)
-                self.m_map[id1] = store
-                USERLOG.Log("Loaded Store: " + store.GetName())
-            line = file.readline() 
-        file.close()  
+        sr = EntityDatabase.Sr
+        for i in range(0, sr.llen("StoreList")):
+            id1 = sr.lindex("StoreList", i)
+            store = Store()
+            store.SetId(id1)
+            store.Load(sr)
+            self.m_map[id1] = store
+            USERLOG.Log("Loaded Store: " + store.GetName())
         return True
     
 storeDatabase = StoreDatabase()

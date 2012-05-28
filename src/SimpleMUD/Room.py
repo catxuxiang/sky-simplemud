@@ -150,48 +150,40 @@ class Room(Entity):
         if index != -1:
             del self.m_enemies[index]
                 
-    def LoadTemplate(self, file):
-        line = file.readline()
-        name = RemoveWord(line, 0)
-        self.m_name = name.strip()
-        line = file.readline()
-        description = RemoveWord(line, 0)
-        self.m_description = description.strip()        
-        line = file.readline()
-        self.m_type = GetRoomType(ParseWord(line, 1))
-        line = file.readline()
-        self.m_data = ParseWord(line, 1)
+    def LoadTemplate(self, sr):
+        id1 = self.GetId()
+        self.m_name = sr.get("RoomTemplate:" + id1 + ":NAME")
+        self.m_description = sr.get("RoomTemplate:" + id1 + ":DESCRIPTION")       
+        self.m_type = GetRoomType(sr.get("RoomTemplate:" + id1 + ":TYPE"))
+        self.m_data = sr.get("RoomTemplate:" + id1 + ":DATA")
         
         for d in range(0, NUMDIRECTIONS):
-            line = file.readline()
-            self.m_rooms[d] = ParseWord(line, 1)
+            self.m_rooms[d] = sr.get("RoomTemplate:" + id1 + ":" + GetDirectionString(d))
         
-        line = file.readline()
-        self.m_spawnwhich = ParseWord(line, 1)
-        line = file.readline()
-        self.m_maxenemies = int(ParseWord(line, 1))
-        #print(self.m_maxenemies)
+        self.m_spawnwhich = sr.get("RoomTemplate:" + id1 + ":ENEMY")
+        self.m_maxenemies = int(sr.get("RoomTemplate:" + id1 + ":MAXENEMIES"))
         
-    def LoadData(self, file):
+    def LoadData(self, sr):
+        id1 = self.GetId()
         self.m_items = []
-        line = file.readline()
-        itemids = RemoveWord(line, 0).strip()
-        for i in itemids.split(' '):
-            if i != "0":
-                self.m_items.append(i)
+        itemids = sr.get("Room:" + id1 + ":ITEMS")
+        if itemids != None:
+            for i in itemids.split(' '):
+                if i != "0":
+                    self.m_items.append(i)
                 
-        line = file.readline()
-        self.m_money = int(ParseWord(line, 1))
-        #print(self.m_money)
+        money = sr.get("Room:" + id1 + ":MONEY")
+        if money != None:
+            self.m_money = int(money)
         
-    def SaveData(self):
-        string = "[ITEMS] "
+    def SaveData(self, sr):
+        id1 = self.GetId()
+        string = ""
         for i in self.m_items:
             string += i.GetId() + " "
-        string += "0\n"
-        string += "[MONEY] " + str(self.m_money) + "\n"
-        return string
-
+        string += "0"
+        sr.set("Room:" + id1 + ":ITEMS", string)
+        sr.set("Room:" + id1 + ":MONEY", str(self.m_money))
 
 '''
 i = Room()
