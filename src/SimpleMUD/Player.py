@@ -306,75 +306,54 @@ class Player(Entity):
         statbar += str(self.GetHitPoints()) + white + "/" + str(self.GetAttr(Attribute_MAXHITPOINTS)) + "] "
         self.GetConn().Protocol().SendString(self.GetConn(), clearline + "\r" + statbar + reset)
         
-    def ToLines(self):
-        string = ""
-        string += "[NAME]           " + self.m_name + "\n"
-        string += "[PASS]           " + self.m_pass + "\n"
-        string += "[RANK]           " + GetRankString(self.m_rank) + "\n"
-        string += "[STATPOINTS]     " + str(self.m_statpoints) + "\n"
-        string += "[EXPERIENCE]     " + str(self.m_experience) + "\n"
-        string += "[LEVEL]          " + str(self.m_level) + "\n"
-        string += "[ROOM]           " + self.m_room.GetId() + "\n"
-        string += "[MONEY]          " + str(self.m_money) + "\n"
-        string += "[HITPOINTS]      " + str(self.m_hitpoints) + "\n"
-        string += "[NEXTATTACKTIME] " + str(self.m_nextattacktime) + "\n"
+    def Save(self, sr):
+        id1 = self.GetId()
+        sr.set("Player:" + id1 + ":Name", self.m_name)
+        sr.set("Player:" + id1 + ":PASS", self.m_pass)
+        sr.set("Player:" + id1 + ":RANK", GetRankString(self.m_rank))
+        sr.set("Player:" + id1 + ":STATPOINTS", str(self.m_statpoints))
+        sr.set("Player:" + id1 + ":EXPERIENCE", str(self.m_experience))
+        sr.set("Player:" + id1 + ":LEVEL", str(self.m_level))
+        sr.set("Player:" + id1 + ":ROOM", self.m_room.GetId())
+        sr.set("Player:" + id1 + ":MONEY", str(self.m_money))
+        sr.set("Player:" + id1 + ":HITPOINTS", str(self.m_hitpoints))
+        sr.set("Player:" + id1 + ":NEXTATTACKTIME", str(self.m_nextattacktime))
         
-        #string += self.m_baseattributes.ToLines()
         for i in range(0, NUMATTRIBUTES):
-            string += "[" + GetAttributeString(i) + "] " + str(self.m_baseattributes[i]) + "\n"
+            sr.set("Player:" + id1 + ":" + GetAttributeString(i), str(self.m_baseattributes[i]))
         
-        string += "[INVENTORY]      "
-        
+        string = ""
         for i in self.m_inventory:
             string += i.GetId() + " "
-        string += "\n"
+        sr.set("Player:" + id1 + ":INVENTORY", string.strip())
         
-        string += "[WEAPON]         " + str(self.m_weapon) + "\n"
-        string += "[ARMOR]          " + str(self.m_armor) + "\n"
-        
-        return string 
+        sr.set("Player:" + id1 + ":WEAPON", str(self.m_weapon))
+        sr.set("Player:" + id1 + ":ARMOR", str(self.m_armor))
     
-    def FromLines(self, file):
-        line = file.readline()
-        name = RemoveWord(line, 0)
-        self.m_name = name.strip()
-        line = file.readline()
-        self.m_pass = ParseWord(line, 1)        
-        line = file.readline()
-        self.m_rank = GetRank(ParseWord(line, 1))
-        line = file.readline()
-        self.m_statpoints = int(ParseWord(line, 1)) 
-        line = file.readline()
-        self.m_experience = int(ParseWord(line, 1)) 
-        line = file.readline()
-        self.m_level = int(ParseWord(line, 1)) 
-        line = file.readline()
-        self.m_room = ParseWord(line, 1)
-        line = file.readline()
-        self.m_money = int(ParseWord(line, 1)) 
-        line = file.readline()
-        self.m_hitpoints = int(ParseWord(line, 1)) 
-        line = file.readline()
-        self.m_nextattacktime = int(ParseWord(line, 1)) 
+    def Load(self, sr):
+        id1 = self.GetId()
+        self.m_name = sr.get("Player:" + id1 + ":Name")
+        self.m_pass = sr.get("Player:" + id1 + ":PASS")      
+        self.m_rank = GetRank(sr.get("Player:" + id1 + ":RANK"))
+        self.m_statpoints = int(sr.get("Player:" + id1 + ":STATPOINTS")) 
+        self.m_experience = int(sr.get("Player:" + id1 + ":EXPERIENCE")) 
+        self.m_level = int(sr.get("Player:" + id1 + ":LEVEL")) 
+        self.m_room = sr.get("Player:" + id1 + ":ROOM")
+        self.m_money = int(sr.get("Player:" + id1 + ":MONEY")) 
+        self.m_hitpoints = int(sr.get("Player:" + id1 + ":HITPOINTS")) 
+        self.m_nextattacktime = int(sr.get("Player:" + id1 + ":NEXTATTACKTIME")) 
         
-        #self.m_baseattributes.FromLines(file)
         for i in range(0, NUMATTRIBUTES):
-            line = file.readline()
-            name = ParseName(ParseWord(line, 0))
-            value = ParseWord(line, 1)
-            self.m_baseattributes[int(GetAttribute(name))] = int(value)        
+            self.m_baseattributes[i] = int(sr.get("Player:" + id1 + ":" + GetAttributeString(i)))       
         
-        line = file.readline()
-        items = RemoveWord(line, 0).strip().split(" ")
+        items = sr.get("Player:" + id1 + ":INVENTORY").split(" ")
         self.m_inventory = []
         for i in items:
             if i != "" and i != "0":
                 self.m_inventory.append(i)
                 
-        line = file.readline()
-        self.m_weapon = int(ParseWord(line, 1))    
-        line = file.readline()
-        self.m_armor = int(ParseWord(line, 1))  
+        self.m_weapon = int(sr.get("Player:" + id1 + ":WEAPON"))    
+        self.m_armor = int(sr.get("Player:" + id1 + ":ARMOR"))  
         
         #because item msg have not been loaded, So comment        
         #self.RecalculateStats()

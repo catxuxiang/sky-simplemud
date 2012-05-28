@@ -13,9 +13,10 @@ from SimpleMUD.StoreDatabase import storeDatabase
 from SimpleMUD.EnemyDatabase import enemyTemplateDatabase, enemyDatabase
 from SimpleMUD.Attributes import *
 from SocketLib.Telnet import *
+from SimpleMUD.EntityDatabase import sr
 import os.path
 
-DBSAVETIME = Minutes(15)
+DBSAVETIME = Seconds(30)
 ROUNDTIME = Seconds(1)
 REGENTIME = Minutes(2)
 HEALTIME = Minutes(1)
@@ -30,20 +31,13 @@ class GameLoop:
         self.SaveDatabases()
         
     def Load(self):
-        src = "../game.data"
-        if (os.path.exists(src)):
-            file = open(src)
-            line = file.readline()
-            time = int(ParseWord(line, 1))
+        if sr.get("GAMETIME") != None:
+            time = int(sr.get("GAMETIME"))
             Game.GetTimer().Reset(time)            
-            line = file.readline()
-            self.m_savedatabases = int(ParseWord(line, 1))
-            line = file.readline()
-            self.m_nextround = int(ParseWord(line, 1))
-            line = file.readline()
-            self.m_nextregen = int(ParseWord(line, 1))
-            line = file.readline()
-            self.m_nextheal = int(ParseWord(line, 1))
+            self.m_savedatabases = int(sr.get("SAVEDATABASES"))
+            self.m_nextround = int(sr.get("NEXTROUND"))
+            self.m_nextregen = int(sr.get("NEXTREGEN"))
+            self.m_nextheal = int(sr.get("NEXTHEAL"))
         else:
             Game.GetTimer().Reset()
             self.m_savedatabases = DBSAVETIME
@@ -53,15 +47,11 @@ class GameLoop:
         Game.SetRunning(True)
         
     def Save(self):
-        file = open("../game.data", "w")
-        string = ""
-        string += "[GAMETIME]      " + str(Game.GetTimer().GetMS()) + "\n"
-        string += "[SAVEDATABASES] " + str(self.m_savedatabases) + "\n"
-        string += "[NEXTROUND]     " + str(self.m_nextround) + "\n"
-        string += "[NEXTREGEN]     " + str(self.m_nextregen) + "\n"
-        string += "[NEXTHEAL]      " + str(self.m_nextheal) + "\n"
-        file.write(string)
-        file.close()
+        sr.set("GAMETIME", str(Game.GetTimer().GetMS()))
+        sr.set("SAVEDATABASES", str(self.m_savedatabases))
+        sr.set("NEXTROUND", str(self.m_nextround))
+        sr.set("NEXTREGEN", str(self.m_nextregen))
+        sr.set("NEXTHEAL", str(self.m_nextheal))
         
     def Loop(self):
         if Game.GetTimer().GetMS() >= self.m_nextround:

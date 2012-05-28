@@ -3,7 +3,10 @@ Created on 2012-4-14
 
 @author: Sky
 '''
+from redis.client import StrictRedis
+sr = StrictRedis(host='localhost', port=6379, db=0)
 class EntityDatabase:
+    Sr = sr
     def __init__(self):
         self.m_map = {}
         
@@ -57,6 +60,7 @@ class EntityDatabase:
             yield self.m_map[i]
             
 class EntityDatabaseVector:
+    Sr = sr
     def __init__(self):
         self.m_vector = []
         

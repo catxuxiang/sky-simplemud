@@ -36,26 +36,15 @@ class Item(Entity):
     def GetPrice(self):
         return self.m_price
     
-    def FromLines(self, file):
-        line = file.readline()
-        name = RemoveWord(line, 0)
-        self.m_name = name.strip()
-        line = file.readline()
-        self.m_type = GetItemType(ParseWord(line, 1))
-        line = file.readline()
-        self.m_min = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_max = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_speed = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_price = int(ParseWord(line, 1))
-        #self.m_attributes.FromLines(file)
-        for _ in range(0, NUMATTRIBUTES):
-            line = file.readline()
-            name = ParseName(ParseWord(line, 0))
-            value = ParseWord(line, 1)
-            self.m_attributes[GetAttribute(name)] = int(value)
+    def Load(self, sr):
+        self.m_name = sr.get("Item:" + self.GetId() + ":NAME")
+        self.m_type = GetItemType(sr.get("Item:" + self.GetId() + ":TYPE"))
+        self.m_min = int(sr.get("Item:" + self.GetId() + ":MIN"))
+        self.m_max = int(sr.get("Item:" + self.GetId() + ":MAX"))
+        self.m_speed = int(sr.get("Item:" + self.GetId() + ":SPEED"))
+        self.m_price = int(sr.get("Item:" + self.GetId() + ":PRICE"))
+        for i in range(0, NUMATTRIBUTES):
+            self.m_attributes[i] = int(sr.get("Item:" + self.GetId() + ":" + GetAttributeString(i)))
         
     def __repr__(self):
         string  = "[NAME]  " + self.m_name + "\n"
