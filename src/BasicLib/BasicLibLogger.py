@@ -5,6 +5,7 @@ Created on 2012-4-14
 '''
 import os.path
 from BasicLib import BasicLibTime
+from BasicLib.Redis import sr
 
 class TextDecorator:
     @staticmethod
@@ -54,8 +55,33 @@ class Logger:
         message += p_entry
         self.m_logfile.write(message + "\n")   
         
-ERRORLOG = Logger("errors.log", "Error Log", True, True)
-USERLOG = Logger("users.log", "User Log", True, True)
+class DbLogger:
+    def __init__(self, p_logtitle, p_timestamp = False, p_datestamp = False):
+        self.m_logtitle = p_logtitle
+        self.m_timestamp = True
+        self.m_datestamp = True
+        self.Log("Session opened.")        
+        self.m_timestamp = p_timestamp
+        self.m_datestamp = p_datestamp
+        
+    def __del__(self):
+        self.m_timestamp = True
+        self.m_datestamp = True
+        self.Log("Session closed.")
+        
+    def Log(self, p_entry):
+        message = "";
+        if(self.m_datestamp):
+            message += "[" + BasicLibTime.DateStamp() + "] "
+        if(self.m_timestamp):
+            message += "[" + BasicLibTime.TimeStamp() + "] " 
+        message += p_entry
+        sr.rpush(self.m_logtitle, message)
+        
+#ERRORLOG = Logger("errors.log", "Error Log", True, True)
+#USERLOG = Logger("users.log", "User Log", True, True)
+ERRORLOG = DbLogger("ErrorLog", True, True)
+USERLOG = DbLogger("UserLog", True, True)
 
 
 '''

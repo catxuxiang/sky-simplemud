@@ -13,7 +13,7 @@ from SimpleMUD.StoreDatabase import storeDatabase
 from SimpleMUD.EnemyDatabase import enemyTemplateDatabase, enemyDatabase
 from SimpleMUD.Attributes import *
 from SocketLib.Telnet import *
-from SimpleMUD.EntityDatabase import sr
+from BasicLib.Redis import sr
 import os.path
 
 DBSAVETIME = Seconds(30)
