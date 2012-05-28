@@ -3,8 +3,8 @@ Created on 2012-4-14
 
 @author: Sky
 '''
-from redis.client import StrictRedis
-sr = StrictRedis(host='localhost', port=6379, db=0)
+from BasicLib.Redis import sr 
+
 class EntityDatabase:
     Sr = sr
     def __init__(self):
