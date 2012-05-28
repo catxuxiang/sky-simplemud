@@ -20,39 +20,26 @@ class EnemyTemplate(Entity):
         self.m_moneymin = 0
         self.m_moneymax = 0
         
-    def FromLines(self, file):
-        line = file.readline()
-        name = RemoveWord(line, 0)
-        self.m_name = name.strip()
-        line = file.readline()
-        self.m_hitpoints = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_accuracy = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_dodging = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_strikedamage = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_damageabsorb = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_experience = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_weapon = ParseWord(line, 1)
-        line = file.readline()
-        self.m_moneymin = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_moneymax = int(ParseWord(line, 1))
+    def Load(self, sr):
+        id1 = self.GetId()
+        self.m_name = sr.get("EnemyTemplate:" + id1 + ":NAME")
+        self.m_hitpoints = int(sr.get("EnemyTemplate:" + id1 + ":HITPOINTS"))
+        self.m_accuracy = int(sr.get("EnemyTemplate:" + id1 + ":ACCURACY"))
+        self.m_dodging = int(sr.get("EnemyTemplate:" + id1 + ":DODGING"))
+        self.m_strikedamage = int(sr.get("EnemyTemplate:" + id1 + ":STRIKEDAMAGE"))
+        self.m_damageabsorb = int(sr.get("EnemyTemplate:" + id1 + ":DAMAGEABSORB"))
+        self.m_experience = int(sr.get("EnemyTemplate:" + id1 + ":EXPERIENCE"))
+        self.m_weapon = sr.get("EnemyTemplate:" + id1 + ":WEAPON")
+        self.m_moneymin = int(sr.get("EnemyTemplate:" + id1 + ":MONEYMIN"))
+        self.m_moneymax = int(sr.get("EnemyTemplate:" + id1 + ":MONEYMAX"))
         
         self.m_loot = {}
-        line = file.readline()
-        while line.strip() != "[ENDLOOT]":
-            id1 = ParseWord(line, 1)
-            chance = ParseWord(line, 2)
-            self.m_loot[id1] = int(chance)
-            line = file.readline()
-        return file
+        for i in sr.smembers("EnemyTemplate:" + id1 + ":LOOT"):
+            id2 = ParseWord(i, 0)
+            chance = ParseWord(i, 1)
+            self.m_loot[id2] = int(chance)
     
-    def ToLines(self):
+    def __repr__(self):
         string  = "[ID]           " + self.m_id + "\n"
         string += "[NAME]         " + self.m_name + "\n"
         string += "[HITPOINTS]    " + str(self.m_hitpoints) + "\n"
@@ -68,9 +55,6 @@ class EnemyTemplate(Entity):
             string += "[LOOT]     " + i + "  " + str(self.m_loot[i]) + "\n" 
         return string
     
-    def __repr__(self):
-        return self.ToLines()
-        
 class Enemy(Entity):   
     def __init__(self):
         Entity.__init__(self)
@@ -131,28 +115,26 @@ class Enemy(Entity):
     def GetLootList(self):
         return self.m_template.m_loot
     
-    def FromLines(self, file):
-        line = file.readline()
-        self.m_template = ParseWord(line, 1)
-        #print(self.m_template.GetId())
-        line = file.readline()
-        self.m_hitpoints = int(ParseWord(line, 1))
-        line = file.readline()
-        self.m_room = ParseWord(line, 1)
-        line = file.readline()
-        #print(line)
-        self.m_nextattacktime = int(ParseWord(line, 1))
-        return file
+    def Load(self, sr):
+        id1 = self.GetId()
+        self.m_template = sr.get("Enemy:" + id1 + ":TEMPLATEID")
+        self.m_hitpoints = int(sr.get("Enemy:" + id1 + ":HITPOINTS"))
+        self.m_room = sr.get("Enemy:" + id1 + ":ROOM")
+        self.m_nextattacktime = int(sr.get("Enemy:" + id1 + ":NEXTATTACKTIME"))
     
-    def ToLines(self):
+    def Save(self, sr):
+        id1 = self.GetId()
+        sr.set("Enemy:" + id1 + ":TEMPLATEID", self.m_template.GetId())
+        sr.set("Enemy:" + id1 + ":HITPOINTS", str(self.m_hitpoints))
+        sr.set("Enemy:" + id1 + ":ROOM", self.m_room.GetId())
+        sr.set("Enemy:" + id1 + ":NEXTATTACKTIME", str(self.m_nextattacktime))
+        
+    def __repr__(self):
         string  = "[TEMPLATEID]     " + self.m_template.GetId() + "\n"
         string += "[HITPOINTS]      " + str(self.m_hitpoints) + "\n"
         string += "[ROOM]           " + self.m_room.GetId() + "\n"
         string += "[NEXTATTACKTIME] " + str(self.m_nextattacktime) + "\n"
         return string
-    
-    def __repr__(self):
-        return self.ToLines()
 
 '''    
 file = open("enemies.templates")

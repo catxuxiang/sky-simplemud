@@ -10,18 +10,14 @@ from BasicLib.BasicLibLogger import USERLOG
 
 class ItemDatabase(EntityDatabase):
     def Load(self):
-        file = open("../items/items.itm")
-        line = file.readline()
-        while line:
-            if line.strip() != "":
-                id1 = ParseWord(line, 1)
-                item = Item()
-                item.SetId(id1)
-                item.FromLines(file)
-                self.m_map[id1] = item
-                USERLOG.Log("Loaded Item: " + item.GetName())
-            line = file.readline() 
-        file.close()  
+        sr = EntityDatabase.Sr
+        for i in range(0, sr.llen("ItemList")):
+            id1 = sr.lindex("ItemList", i)
+            item = Item()
+            item.SetId(id1)
+            item.Load(sr)
+            self.m_map[id1] = item
+            USERLOG.Log("Loaded Item: " + item.GetName())
         return True
 
 itemDatabase =ItemDatabase()

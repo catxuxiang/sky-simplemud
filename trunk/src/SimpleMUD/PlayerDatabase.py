@@ -34,47 +34,31 @@ class PlayerDatabase(EntityDatabase):
             
         return None
     
-    def PlayerFileName(self, p_name):
-        return "../players/" + p_name + ".plr"
-    
-    def LoadPlayer(self, p_name):
-        p_name = self.PlayerFileName(p_name)
-        file = open(p_name)
-        line = file.readline()
-        id1 = ParseWord(line, 1)
+    def LoadPlayer(self, p_id):
+        sr = EntityDatabase.Sr
         player = Player()
-        player.SetId(id1)
-        player.FromLines(file)
-        file.close()
-        self.m_map[id1] = player
+        player.SetId(p_id)
+        player.Load(sr)
+        self.m_map[p_id] = player
         
-        USERLOG.Log("Loaded Player: " + self.m_map[id1].GetName())
+        USERLOG.Log("Loaded Player: " + self.m_map[p_id].GetName())
         
     def Load(self):
-        file = open("../players/players.txt")
-        line = file.readline()
-        while line:
-            self.LoadPlayer(line.strip())
-            line = file.readline()
-        file.close()
+        sr = EntityDatabase.Sr
+        for i in sr.hkeys("PlayerHash"):
+            self.LoadPlayer(i)
         return True
     
     def SavePlayer(self, p_player):
-        name = self.PlayerFileName(p_player.GetName())
-        file = open(name, "w")
-        string = "[ID]             " + p_player.GetId() + "\n"
-        string += p_player.ToLines()
-        file.write(string)
-        file.close()
+        p_player.Save(EntityDatabase.Sr)
 
     def Save(self):
-        file = open("../players/players.txt", "w")
-        string = ""
+        sr = EntityDatabase.Sr
+        for i in sr.hkeys("PlayerHash"):
+            sr.hdel("PlayerHash", i)
         for i in self.m_map.values():
-            string += i.GetName() + "\n"
+            sr.hset("PlayerHash", i.GetId(), i.GetName())
             self.SavePlayer(i)
-        file.write(string)
-        file.close()
         return True
 
     def AddPlayer(self, p_player):

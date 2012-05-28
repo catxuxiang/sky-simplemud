@@ -11,18 +11,15 @@ from BasicLib.BasicLibLogger import USERLOG
 class EnemyTemplateDatabase(EntityDatabaseVector):
 
     def Load(self):
-        file = open("..\enemies\enemies.templates")
-        line = file.readline()
-        while line:
-            if line.strip() != "":
-                id1 = ParseWord(line, 1)
-                enemy = EnemyTemplate()
-                enemy.SetId(id1)
-                enemy.FromLines(file)
-                #print(enemy)
-                self.m_vector.append(enemy)
-                USERLOG.Log("Loaded Enemy: " + enemy.GetName())
-            line = file.readline()    
+        sr = EntityDatabaseVector.Sr
+        for i in range(0, sr.llen("EnemyTemplateList")):
+            id1 = sr.lindex("EnemyTemplateList", i)
+            enemy = EnemyTemplate()
+            enemy.SetId(id1)
+            enemy.Load(sr)
+            self.m_vector.append(enemy)
+            USERLOG.Log("Loaded EnemyTemplate: " + enemy.GetName())
+   
             
     
 #i = EnemyTemplateDatabase()
@@ -44,30 +41,21 @@ class EnemyDatabase(EntityDatabase):
         del p_enemy
     
     def Load(self):
-        file = open("..\enemies\enemies.instances")
-        line = file.readline()
-        while line:
-            if line.strip() != "":
-                id1 = ParseWord(line, 1)
-                enemy = Enemy()
-                enemy.SetId(id1)
-                enemy.FromLines(file)
-                #enemy.GetCurrentRoom().AddEnemy(enemy)
-                self.m_map[id1] = enemy
-            line = file.readline() 
-        #print(len(self.m_map))
-        file.close()
+        sr = EntityDatabaseVector.Sr
+        for i in range(0, sr.llen("EnemyList")):
+            id1 = sr.lindex("EnemyList", i)
+            enemy = Enemy()
+            enemy.SetId(id1)
+            enemy.Load(sr)
+            self.m_map[id1] = enemy
      
     def Save(self):
-        file = open("..\enemies\enemies.instances", "w")
-        string = ""
+        sr = EntityDatabaseVector.Sr
+        sr.ltrim("EnemyList", 2, 1)
         for i in self.m_map:
-            string += "[ID] " + i + "\n"
-            string += self.m_map[i].ToLines()
-            string += "\n"
-        file.write(string)
-        file.close()
-        
+            sr.rpush("EnemyList", i)
+            self.m_map[i].Save(sr)
+            
 enemyTemplateDatabase = EnemyTemplateDatabase()
 enemyDatabase = EnemyDatabase()
 
