@@ -42,13 +42,13 @@ class Connection(DataSocket):
             sent = DataSocket.Send(self, self.m_sendbuffer)
             self.m_sendbuffer = ""
 
-        if sent > 0:
-            self.m_lastSendTime = GetTimeS()
-            self.m_checksendtime = False
-        else:
-            if not self.m_checksendtime:
-                self.m_checksendtime = True
+            if sent > 0:
                 self.m_lastSendTime = GetTimeS()
+                self.m_checksendtime = False
+            else:
+                if not self.m_checksendtime:
+                    self.m_checksendtime = True
+                    self.m_lastSendTime = GetTimeS()
                 
     def Receive(self):
         byte = DataSocket.Receive(self, BUFFERSIZE)
